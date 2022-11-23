@@ -14,7 +14,7 @@ const commentSchema = new Schema({
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    // ref: 'User'
   }
 }, {
   timestamps: true
@@ -32,8 +32,7 @@ const farmSchema = new Schema({
       required: true
     },
     coordinates: {
-      type: [Number],
-      required: true
+      type: [Number]
     }
   },
   address: {
@@ -59,6 +58,6 @@ const farmSchema = new Schema({
   timestamps: true
 });
 
-const Farm = mongoose.model('Farm', farmSchema);
+const Farm = mongoose.model('farmstands', farmSchema);
 
 module.exports = Farm;
