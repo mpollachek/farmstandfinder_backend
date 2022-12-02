@@ -15,7 +15,8 @@ const mongoose = require('mongoose');
 const url = config.mongoUrl;
 const connect = mongoose.connect(url);
 
-connect.then(() => console.log('Connected correctly to server - booyah'), 
+
+connect.then(() => console.log(`Connected correctly to server - booyah`), 
     err => console.log(err)
 );
 
