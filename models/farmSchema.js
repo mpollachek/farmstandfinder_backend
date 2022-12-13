@@ -21,15 +21,15 @@ const commentSchema = new Schema({
 });
 
 const farmSchema = new Schema({
-  name: {
+  farmstandName: {
     type: String,
-    required: true
+    required: false
   },
   location: {
     type: {
       type: String, // Don't do `{ location: { type: String } }`
       default: 'Point', // 'location.type' must be 'Point'
-      required: true
+      required: false
     },
     coordinates: {
       type: [Number]

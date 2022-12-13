@@ -8,7 +8,7 @@ const config = require('./config');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-const farmRouter = require('./routes/farmRouter');
+const farmRouter = require('./routes/farmRouterTest');
 
 const mongoose = require('mongoose');
 
