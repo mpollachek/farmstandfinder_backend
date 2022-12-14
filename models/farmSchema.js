@@ -50,7 +50,11 @@ const farmSchema = new Schema({
     enum: ['summer', 'spring', 'winter', 'fall']
   },
   image: {
-    type: [String]
+    directory: {
+      type: String,
+      default: ''
+    },
+    filename: [String],
   },
   featured: Boolean,
   comments: [commentSchema],
