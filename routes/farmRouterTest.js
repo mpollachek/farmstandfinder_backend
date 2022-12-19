@@ -32,7 +32,23 @@ const farmRouter = express.Router();
 farmRouter.route('/')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get(cors.cors, (req, res, next) => {
-    Farm.find()
+  console.log("long: ", req.query.longitude);
+  console.log("lat: ", req.query.latitude);
+  console.log("distance: ", req.query.distance);
+  const longitude = req.query.longitude;
+  const latitude = req.query.latitude;
+  const distance = req.query.distance;
+    Farm.find({
+      location: {
+        $near: {
+          $geometry: { type: "Point",
+        coordinates: [longitude, latitude]
+      },
+      $minDistance: 0,
+      $maxDistance: distance
+        }
+      }
+    })
     .populate('comments.author')
     .then(farms => {
         res.statusCode = 200;
@@ -41,6 +57,19 @@ farmRouter.route('/')
     })
     .catch(err => next(err));
 })
+
+// farmRouter.route('/')
+// .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+// .get(cors.cors, (req, res, next) => {
+//     Farm.find()
+//     .populate('comments.author')
+//     .then(farms => {
+//         res.statusCode = 200;
+//         res.setHeader('Content-Type', 'application/json');
+//         res.json(farms);
+//     })
+//     .catch(err => next(err));
+// })
 
 .post(cors.corsWithOptions, upload.array('image', 12), (req, res, next) => {
   console.log("files: " + JSON.stringify(req.files));
