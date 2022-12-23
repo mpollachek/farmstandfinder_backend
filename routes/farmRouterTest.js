@@ -35,9 +35,13 @@ farmRouter.route('/')
   console.log("long: ", req.query.longitude);
   console.log("lat: ", req.query.latitude);
   console.log("distance: ", req.query.distance);
+  console.log("distance: ", req.query.products);
+  console.log("distance: ", req.query.seasons);
   const longitude = req.query.longitude;
   const latitude = req.query.latitude;
   const distance = req.query.distance;
+  const products = req.query.products;
+  const seasons = req.query.seasons;
     Farm.find({
       location: {
         $near: {
@@ -47,7 +51,9 @@ farmRouter.route('/')
       $minDistance: 0,
       $maxDistance: distance
         }
-      }
+      },
+      products: products,
+      seasons: seasons
     })
     .populate('comments.author')
     .then(farms => {
