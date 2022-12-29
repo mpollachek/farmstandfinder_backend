@@ -9,7 +9,7 @@ const fs = require('fs');
 //to do: set image save folder to mongodb id (one folder per farmstand)
 // save file path to mongodb
 
-const dir = './imagesTest'
+const dir = './public/images'
 const tempPath = `${dir}/temp`
 console.log("path.join dir + temp: " + path.normalize(dir, 'temp'))
 console.log("'./' + path.join dir + temp: " + './' + path.normalize(dir, 'temp'))
@@ -35,14 +35,25 @@ farmRouter.route('/')
   console.log("long: ", req.query.longitude);
   console.log("lat: ", req.query.latitude);
   console.log("distance: ", req.query.distance);
-  console.log("distance: ", req.query.products);
-  console.log("distance: ", req.query.seasons);
+  console.log("products: ", req.query.products);
+  console.log("seasons: ", req.query.seasons);
+  console.log("typeof seasons: ", typeof(req.query.seasons))
   const longitude = req.query.longitude;
   const latitude = req.query.latitude;
   const distance = req.query.distance;
   const products = req.query.products;
-  const seasons = req.query.seasons;
+  //const seasons = req.query.seasons;
+  let seasons = [];
+  if (req.query.seasons === 'harvest'){
+    seasons.push('harvest')
+  } else {
+    seasons.push('yearRoundQuery')
+  }
+  console.log('seasons array: ', seasons)
+
+  if (products) {
     Farm.find({
+      $and: [{
       location: {
         $near: {
           $geometry: { type: "Point",
@@ -51,18 +62,48 @@ farmRouter.route('/')
       $minDistance: 0,
       $maxDistance: distance
         }
-      },
-      products: products,
-      seasons: seasons
+      }},
+      {products: { $all: products }},
+      {seasons: { $all: seasons }}
+    ]
     })
     .populate('comments.author')
     .then(farms => {
+        console.log("farms response: ", farms);
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(farms);
+        res.json(farms);        
     })
     .catch(err => next(err));
+  } else{
+    Farm.find({
+      $and: [{
+      location: {
+        $near: {
+          $geometry: { type: "Point",
+        coordinates: [longitude, latitude]
+      },
+      $minDistance: 0,
+      $maxDistance: distance
+        }
+      }},
+      //{seasons: seasons}
+      {seasons: { $all: seasons }}
+    ]
+    })
+    .populate('comments.author')
+    .then(farms => {
+        console.log("farms response: ", farms);
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(farms);        
+    })
+    .catch(err => next(err));
+  }
+
+
 })
+
 
 // farmRouter.route('/')
 // .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
@@ -78,6 +119,14 @@ farmRouter.route('/')
 // })
 
 .post(cors.corsWithOptions, upload.array('image', 12), (req, res, next) => {
+
+  // const seasonsArray = [];
+  // if (req.body.seasons === 'harvest'){
+  //   seasons.push('harvest', 'yearRoundQuery')
+  // } else {
+  //   seasons.push('yearRound', 'yearRoundQuery')
+  // }
+  // console.log('seasons array: ', seasons)
   console.log("files: " + JSON.stringify(req.files));
   console.log('req: ' + JSON.stringify(req.body));
   const imagePaths = [];
@@ -104,7 +153,7 @@ farmRouter.route('/')
     },
     description: req.body.description,
     products: req.body.products,
-    seasons: req.body.seasons,
+    //seasons: seasonsArray,
     image: {
       filename: imageNames
     }
