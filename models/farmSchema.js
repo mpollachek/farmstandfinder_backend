@@ -47,7 +47,9 @@ const farmSchema = new Schema({
   },
   seasons: {
     type: [String],
-    enum: ['harvest', 'yearRound', 'yearRoundQuery']
+    enum: ['harvest', 'yearRound', 'yearRoundQuery'],
+    required: true,
+    default: ['yearRound', 'yearRoundQuery']
   },
   image: {
     directory: {

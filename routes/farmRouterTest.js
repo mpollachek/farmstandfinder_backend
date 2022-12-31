@@ -100,8 +100,6 @@ farmRouter.route('/')
     })
     .catch(err => next(err));
   }
-
-
 })
 
 
@@ -206,6 +204,33 @@ farmRouter.route('/')
 //   })
 //   .catch(err => next(err));
 // });
+
+farmRouter.route('/images')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.cors, (req, res, next) => {
+  const idImages = {}
+  console.log('req.query: ', req.query)
+  console.log('req id array: ', req.query.id);
+  for (const id of req.query.id) {
+    console.log("each id: ", id);
+    tempArray = [];
+    let filenames = fs.readdirSync(`${dir}/${id}`);
+    filenames.forEach((file) => {
+      console.log('file: ', file);
+      tempArray.push(file);
+      console.log("tempArray: ", tempArray)
+    })
+    idImages[`${id}`] = tempArray;
+    console.log("id array: ", idImages);
+}
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'application/json');
+  res.json(idImages)
+.catch(err => next(err));
+  /* 
+  idImages array is within for loop. each id should have its own array. an array with each id array needs to be sent in response.  currently no res from server
+  */
+})
 
 
 farmRouter.route('/:farmstandId')
