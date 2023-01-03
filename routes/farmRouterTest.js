@@ -224,7 +224,7 @@ farmRouter.route('/images')
     console.log("id array: ", idImages);
 }
   res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Type', 'application/json')
   res.json(idImages)
 .catch(err => next(err));
   /* 
