@@ -205,6 +205,23 @@ farmRouter.route('/')
 //   .catch(err => next(err));
 // });
 
+farmRouter.route('/cardImage')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.cors, (req, res, next) => {
+  console.log('req.query: ', req.query)
+  console.log('req id array: ', req.query.id);
+      Farm.find({
+        _id: req.query.id
+      })
+    .then(cardImage => {
+      console.log('cardImage: ', cardImage[0].images[0])
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(cardImage[0].images[0]);
+    })
+    .catch(err => next(err));
+})
+
 farmRouter.route('/images')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get(cors.cors, (req, res, next) => {
@@ -215,6 +232,8 @@ farmRouter.route('/images')
     console.log("each id: ", id);
     tempArray = [];
     let filenames = fs.readdirSync(`${dir}/${id}`);
+    console.log("filenames: ", filenames)
+    if (filenames.length) {
     filenames.forEach((file) => {
       console.log('file: ', file);
       tempArray.push(file);
@@ -222,15 +241,62 @@ farmRouter.route('/images')
     })
     idImages[`${id}`] = tempArray;
     console.log("id array: ", idImages);
-}
+}}
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json')
   res.json(idImages)
 .catch(err => next(err));
-  /* 
-  idImages array is within for loop. each id should have its own array. an array with each id array needs to be sent in response.  currently no res from server
-  */
 })
+
+// farmRouter.route('/images')
+// .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+// .get(cors.cors, (req, res, next) => {
+//   const idImages = {}
+//   console.log('req.query: ', req.query)
+//   console.log('req id array: ', req.query.id);
+//   for (const id of req.query.id) {
+//     console.log("each id: ", id);
+//     tempArray = [];
+//     fs.readdir(`${dir}/${id}`, (err, filenames) => {
+//       if (err) {
+//       console.log(err);
+//       } else {
+//         console.log("filenames: ", filenames)
+//         filenames.forEach((file) => {
+//           console.log('file: ', file);
+//           tempArray.push(file);
+//           console.log("tempArray: ", tempArray)
+//         })
+//         idImages[`${id}`] = tempArray;
+//         console.log("id array: ", idImages);
+//       }
+//     });
+//     }
+//     res.statusCode = 200;
+//     res.setHeader('Content-Type', 'application/json')
+//     res.json(idImages)
+//   .catch(err => next(err));
+// })
+
+
+
+farmRouter.route('test')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.cors, (req, res, next) => {
+  console.log('req.query: ', req.query)
+  console.log('req id array: ', req.query.id);
+  fs.readdir(`${dir}/${id}`, (err, filenames) => {
+    if (err) {
+      console.log(err);
+      } else {
+        console.log('filenames: ', filenames)
+}})
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'application/json')
+  res.json(idImages)
+  .catch(err => next(err));
+})
+
 
 
 farmRouter.route('/:farmstandId')

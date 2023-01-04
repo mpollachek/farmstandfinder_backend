@@ -51,12 +51,8 @@ const farmSchema = new Schema({
     required: true,
     default: ['yearRound', 'yearRoundQuery']
   },
-  image: {
-    directory: {
-      type: String,
-      default: ''
-    },
-    filename: [String],
+  images: {
+    type: [String],
   },
   featured: Boolean,
   comments: [commentSchema],
