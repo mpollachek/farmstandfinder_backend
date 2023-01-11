@@ -58,8 +58,9 @@ const farmSchema = new Schema({
   comments: [commentSchema],
 }, {
   timestamps: true
-});
+},
+);
 
-const Farm = mongoose.model('farmstands', farmSchema);
+const Farm = mongoose.model('Farmstand', farmSchema);
 
 module.exports = Farm;

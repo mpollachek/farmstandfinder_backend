@@ -152,15 +152,14 @@ farmRouter.route('/')
     description: req.body.description,
     products: req.body.products,
     //seasons: seasonsArray,
-    image: {
-      filename: imageNames
-    }
+    images: imageNames
   })
   .then(async farm => {   
     console.log('Farmstand Created ', farm);
     const farmId = farm._id;
     const farmPath = `${dir}/${farmId}`
-    // await Farm.updateOne(
+    console.log("farmId: ", farmId)
+    console.log("farmPath: ", farmPath)
     //   {_id: farmId},
 
     //   {
@@ -171,11 +170,11 @@ farmRouter.route('/')
     // console.log('farm image directory: ', farm.image.directory);
     // console.log('Farmstand Created ', farm);
     //const imageDir = path.normalize(dir, farmId);
-    console.log("farm.image: " + farm.image.filename)
+    console.log("farm.images: " + farm.images)
     if (!fs.existsSync(farmPath)){
       fs.mkdirSync(farmPath);
     }
-    for (item of farm.image.filename){
+    for (item of farm.images){
       console.log("item " + item)
       fs.rename(`${tempPath}/${item}`, `${farmPath}/${item}`, function (err) {
         if(err) {
