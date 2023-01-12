@@ -49,10 +49,19 @@ userRouter.post('/signup', cors.corsWithOptions, (req, res) => {
   );
 });
 
-userRouter.post('/login', cors.corsWithOptions, passport.authenticate('jwt', {session: false}), (req, res) => {
-  console.log("1")
+// userRouter.post('/login', cors.corsWithOptions, passport.authenticate('local', {session: false}), (req, res) => {
+//   console.log("1")
+//   const token = authenticate.getToken({_id: req.user._id});
+//   console.log("1")
+//   res.statusCode = 200;
+//   res.setHeader('Content-Type', 'application/json');
+//   res.json({success: true, token: token, status: 'You are successfully logged in!'});
+// });
+
+userRouter.route('/login')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.post(cors.corsWithOptions, passport.authenticate('local'), (req, res) => {
   const token = authenticate.getToken({_id: req.user._id});
-  console.log("1")
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
   res.json({success: true, token: token, status: 'You are successfully logged in!'});
@@ -77,6 +86,37 @@ userRouter.get('/facebook/token', passport.authenticate('facebook-token'), (req,
       res.setHeader('Content-Type', 'application/json');
       res.json({success: true, token: token, status: 'You are successfully logged in!'});
   }
+});
+
+
+userRouter.route('/protected')
+.options(cors.corsWithOptions, authenticate.verifyUser, (req, res) => res.sendStatus(200))
+.get(cors.corsWithOptions, (req, res, next) => {
+  if (req.isAuthenticated()) {
+    res.send("Protected")
+} else {
+    res.status(401).send({ msg: "Unauthorized" })
+}
+console.log(req.session)
+console.log(req.user)
+})
+
+// userRouter.route('/test')
+// .get(cors.corsWithOptions, authenticate.checkAuthenticated, (req, res, next) => {
+//   console.log("success! checkAuthenticated ", res)
+//     });
+
+userRouter.route('/test')
+.options(cors.corsWithOptions,  (req, res) => res.sendStatus(200))
+.get(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+  User.find()
+  .then(users => {
+    console.log('users: ', users)
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json(users);
+  })
+  .catch(err => next(err));
 });
 
 module.exports = userRouter;

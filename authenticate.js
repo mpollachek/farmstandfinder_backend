@@ -40,6 +40,11 @@ exports.jwtPassport = passport.use(
 
 exports.verifyUser = passport.authenticate('jwt', {session: false});
 
+// exports.checkAuthenticated = (req, res, next) => {
+//   if (req.isAuthenticated()) { return next() }
+//   console.log("res-isAuthenticated: ", res)
+// }
+
 exports.verifyAdmin = (req, res, next) => {
   if (req.user.admin) {
     return next();
@@ -66,8 +71,6 @@ exports.facebookPassport = passport.use(
               } else {
                   user = new User({ username: profile.displayName });
                   user.facebookId = profile.id;
-                  user.firstname = profile.name.givenName;
-                  user.lastname = profile.name.familyName;
                   user.save((err, user) => {
                       if (err) {
                           return done(err, false);
