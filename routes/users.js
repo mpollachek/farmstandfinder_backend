@@ -18,7 +18,9 @@ userRouter.route('/')
   .catch(err => next(err));
 });
 
-userRouter.post('/signup', cors.corsWithOptions, (req, res) => {
+userRouter.route('/signup')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.post(cors.corsWithOptions, (req, res) => {
   User.register(
       new User({username: req.body.username}),
       req.body.password,
@@ -39,9 +41,11 @@ userRouter.post('/signup', cors.corsWithOptions, (req, res) => {
                       return;
                   }
                   passport.authenticate('local')(req, res, () => {
+                    console.log("req.user: ", req.user)
+                      const token = authenticate.getToken({_id: req.user._id});
                       res.statusCode = 200;
                       res.setHeader('Content-Type', 'application/json');
-                      res.json({success: true, status: 'Registration Successful!'});
+                      res.json({success: true, token: token, userId: req.user._id, userName: req.user.username, status: 'Registration Successful!'});
                   });
               });
           }
