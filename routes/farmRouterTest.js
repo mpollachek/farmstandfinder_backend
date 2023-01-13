@@ -69,7 +69,7 @@ farmRouter.route('/')
     })
     .populate('comments.author')
     .then(farms => {
-        console.log("farms response: ", farms);
+        //console.log("farms response: ", farms);
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.json(farms);        
@@ -93,7 +93,7 @@ farmRouter.route('/')
     })
     .populate('comments.author')
     .then(farms => {
-        console.log("farms response: ", farms);
+        //console.log("farms response: ", farms);
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.json(farms);        

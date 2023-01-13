@@ -64,7 +64,7 @@ userRouter.route('/login')
   const token = authenticate.getToken({_id: req.user._id});
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
-  res.json({success: true, token: token, status: 'You are successfully logged in!'});
+  res.json({success: true, token: token, userId: req.user._id, userName: req.user.username, status: 'You are successfully logged in!'});
 });
 
 userRouter.get('/logout', cors.corsWithOptions, (req, res, next) => {
@@ -90,15 +90,16 @@ userRouter.get('/facebook/token', passport.authenticate('facebook-token'), (req,
 
 
 userRouter.route('/protected')
-.options(cors.corsWithOptions, authenticate.verifyUser, (req, res) => res.sendStatus(200))
-.get(cors.corsWithOptions, (req, res, next) => {
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
   if (req.isAuthenticated()) {
-    res.send("Protected")
+    res.send(req.user)
+    console.log("Protected")
 } else {
     res.status(401).send({ msg: "Unauthorized" })
 }
-console.log(req.session)
-console.log(req.user)
+console.log("session:", req.session)
+console.log("user", req.user)
 })
 
 // userRouter.route('/test')
