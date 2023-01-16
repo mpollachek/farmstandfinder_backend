@@ -1,6 +1,6 @@
 const express = require('express');
 const Farm = require('../models/farmSchema');
-// const authenticate = require('../authenticate');
+const authenticate = require('../authenticate');
 const cors = require('./cors');
 const path = require('path');
 const fs = require('fs');
@@ -29,6 +29,7 @@ const upload = multer({storage: storage})
 
 const farmRouter = express.Router(); 
 
+/* All Farmstands */
 farmRouter.route('/')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get(cors.cors, (req, res, next) => {
@@ -195,7 +196,7 @@ farmRouter.route('/')
   res.end('PUT operation not supported on /farms');
 })
 // .delete(cors.corsWithOptions, authenticate.verifyAdmin, (req, res, next) => {
-//   Campsite.deleteMany()
+//   Farm.deleteMany()
 //   .then(response => {
 //       res.statusCode = 200;
 //       res.setHeader('Content-Type', 'application/json');
@@ -203,6 +204,10 @@ farmRouter.route('/')
 //   })
 //   .catch(err => next(err));
 // });
+
+/* End All Farmstands */
+
+/* Not in use */
 
 farmRouter.route('/cardImage')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
@@ -297,7 +302,7 @@ farmRouter.route('test')
 })
 
 
-
+/* Each Farmstand by ID */
 farmRouter.route('/:farmstandId')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get(cors.cors, (req, res, next) => {
@@ -312,7 +317,7 @@ farmRouter.route('/:farmstandId')
 })
 .post(cors.corsWithOptions, /*authenticate.verifyUser,*/ (req, res) => {
     res.statusCode = 403;
-    res.end(`POST operation not supported on /campsites/${req.params.farmstandId}`);
+    res.end(`POST operation not supported on /farmstands/${req.params.farmstandId}`);
 })
 .put(cors.corsWithOptions, /*authenticate.verifyUser, authenticate.verifyAdmin,*/ (req, res, next) => {
   console.log("farmstandId: " + req.params.farmstandId)
@@ -336,8 +341,179 @@ farmRouter.route('/:farmstandId')
   })
   .catch(err => next(err));
 });
+/* End Each Farmstand by ID */
 
 
+/* Comments by farmstand ID */
+farmRouter.route('/:farmstandId/comments')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.cors, (req, res, next) => {
+  Farm.findById(req.params.farmstandId)
+    .populate('comments.author')
+    .then(farmstand => {
+        if (farmstand) {
+          console.log("comments res ", farmstand)
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(farmstand.comments);
+        } else {
+            err = new Error(`farmstand ${req.params.farmstandId} not found`);
+            err.status = 404;
+            return next(err);
+        }
+    })
+    .catch(err => next(err));
+})
+.post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+  Farm.findById(req.params.farmstandId)
+    .then(farmstand => {
+        if (farmstand) {
+            req.body.author = req.user._id;
+            farmstand.comments.push(req.body);
+            farmstand.save()
+            .then(farmstand => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(farmstand);
+            })
+            .catch(err => next(err));
+        } else {
+            err = new Error(`Farm ${req.params.farmstandId} not found`);
+            err.status = 404;
+            return next(err);
+        }
+    })
+    .catch(err => next(err));
+})
+.put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+    res.statusCode = 403;
+    res.end(`PUT operation not supported on /farmstands/${req.params.farmstandId}/comments`);
+})
+.delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+  Farm.findById(req.params.farmstandId)
+    .then(farmstand => {
+        if (farmstand) {
+            for (let i = (farmstand.comments.length-1); i >= 0; i--) {
+              farmstand.comments.id(campsifarmstandte.comments[i]._id).remove();
+            }
+            farmstand.save()
+            .then(farmstand => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(farmstand);
+            })
+            .catch(err => next(err));
+        } else {
+            err = new Error(`farmstand ${req.params.farmstandId} not found`);
+            err.status = 404;
+            return next(err);
+        }
+    })
+    .catch(err => next(err));
+});
+/* End Comments by farmstand ID */
+
+
+/* comments by comment ID for editing and deleting */
+farmRouter.route('/:farmstandId/comments/:commentId')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.cors, (req, res, next) => {
+  Farm.findById(req.params.farmstandId)
+    .populate('comments.author')
+    .then(farmstand => {
+        if (farmstand && farmstand.comments.id(req.params.commentId)) {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(farmstand.comments.id(req.params.commentId));
+        } else if (!farmstand) {
+            err = new Error(`Farm ${req.params.farmstandId} not found`);
+            err.status = 404;
+            return next(err);
+        } else {
+            err = new Error(`Comment ${req.params.commentId} not found`);
+            err.status = 404;
+            return next(err);
+        }
+    })
+    .catch(err => next(err));
+})
+.post(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+    res.statusCode = 403;
+    res.end(`POST operation not supported on /farmstands/${req.params.farmstandId}/comments/${req.params.commentId}`);
+})
+.put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+  Farm.findById(req.params.farmstandId)
+    .then(farmstand => {
+        if (farmstand && farmstand.comments.id(req.params.commentId)) {
+          if((farmstand.comments.id(req.params.commentId).author._id).equals(req.user._id)) {
+            if (req.body.rating) {
+              farmstand.comments.id(req.params.commentId).rating = req.body.rating;
+          }
+          if (req.body.text) {
+            farmstand.comments.id(req.params.commentId).text = req.body.text;
+          }
+          farmstand.save()
+          .then(farmstand => {
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.json(farmstand);
+          })
+          .catch(err => next(err));
+          } else {
+            const error = new Error('not authorized to edit comment');
+            err.status = 403;
+            return next(err);
+          }
+            
+        } else if (!farmstand) {
+            err = new Error(`farmstand ${req.params.farmstandId} not found`);
+            err.status = 404;
+            return next(err);
+        } else {
+            err = new Error(`Comment ${req.params.commentId} not found`);
+            err.status = 404;
+            return next(err);
+        }
+    })
+    .catch(err => next(err));
+})
+
+.delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+  Farm.findById(req.params.farmstandId)
+      .then(farmstand => {
+        if (farmstand && farmstand.comments.id(req.params.commentId)) {
+          if (
+            farmstand.comments
+              .id(req.params.commentId)
+              .author._id.equals(req.user._id)
+          ) {
+            farmstand.comments.id(req.params.commentId).remove();
+            farmstand
+              .save()
+              .then((farmstand) => {
+                res.statusCode = 200;
+                res.setHeader("Content-Type", "application/json");
+                res.json(farmstand);
+              })
+              .catch((err) => next(err));
+          } else {
+            const error = new Error("Not Authorized");
+            error.status = 403;
+            return next();
+          }
+        } else if (!farmstand) {
+          err = new Error(`farmstand ${req.params.farmstandId} not found`);
+          err.status = 404;
+          return next(err);
+        } else {
+          err = new Error(`Comment ${req.params.commentId} not found`);
+          err.status = 404;
+          return next(err);
+        }
+      })
+      .catch((err) => next(err));
+  });
+  /* End comments by comment ID for editing and deleting */
 
 
 
