@@ -1,5 +1,7 @@
 const express = require('express');
 const Farm = require('../models/farmSchema');
+const Comment = require('../models/commentSchema');
+const User = require('../models/user');
 const authenticate = require('../authenticate');
 const cors = require('./cors');
 const path = require('path');
@@ -68,7 +70,7 @@ farmRouter.route('/')
       {seasons: { $all: seasons }}
     ]
     })
-    .populate('comments.author')
+    //.populate('comments.author')
     .then(farms => {
         //console.log("farms response: ", farms);
         res.statusCode = 200;
@@ -92,7 +94,7 @@ farmRouter.route('/')
       {seasons: { $all: seasons }}
     ]
     })
-    .populate('comments.author')
+    //.populate('comments.author')
     .then(farms => {
         //console.log("farms response: ", farms);
         res.statusCode = 200;
@@ -307,7 +309,7 @@ farmRouter.route('/:farmstandId')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get(cors.cors, (req, res, next) => {
     Farm.findById(req.params.farmstandId)
-    .populate('comments.author')
+    //.populate('comments.author')
     .then(farmstand => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
@@ -348,43 +350,131 @@ farmRouter.route('/:farmstandId')
 farmRouter.route('/:farmstandId/comments')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get(cors.cors, (req, res, next) => {
-  Farm.findById(req.params.farmstandId)
-    .populate('comments.author')
+  const farmId = req.params.farmstandId
+  console.log("get comments ", farmId)
+  // console.log("find by id: ", Farm.findById(farmId))
+  Farm.findById(farmId)
+  //console.log("farm: ", farm)
+    .populate({
+      path: "comments",
+        populate: {
+          path: "author",
+          select:   "username"
+        }
+    })
     .then(farmstand => {
+      console.log("comments res ", farmstand.comments)
         if (farmstand) {
-          console.log("comments res ", farmstand)
+          let commentsArray = farmstand.comments.map(comment =>{
+            return({
+            rating: comment.rating,
+            text: comment.text,
+            author: comment.author.username,
+            date: comment.createdAt,
+            updated: comment.updatedAt
+        })})
+          console.log("commentsArray ", commentsArray)
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
-            res.json(farmstand.comments);
+            res.json(commentsArray);
         } else {
-            err = new Error(`farmstand ${req.params.farmstandId} not found`);
+            err = new Error(`farmstand ${farmId} not found`);
             err.status = 404;
             return next(err);
         }
     })
     .catch(err => next(err));
 })
-.post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-  Farm.findById(req.params.farmstandId)
-    .then(farmstand => {
-        if (farmstand) {
-            req.body.author = req.user._id;
-            farmstand.comments.push(req.body);
-            farmstand.save()
-            .then(farmstand => {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(farmstand);
-            })
-            .catch(err => next(err));
-        } else {
-            err = new Error(`Farm ${req.params.farmstandId} not found`);
-            err.status = 404;
-            return next(err);
-        }
-    })
-    .catch(err => next(err));
-})
+.post(cors.corsWithOptions, authenticate.verifyUser, async (req, res, next) => {
+  // Farm.findById(req.params.farmstandId)
+  const farmId = req.params.farmstandId
+  const userId = req.body.author
+  console.log('req: ', req.body)
+  console.log('farmstandId: ', `${req.params.farmstandId}`)
+  // Comment.create({
+  //   text: req.body.text,
+  //   author: req.body.author,
+  //   rating: req.body.rating,
+  //   farmstandId: id
+  // })
+  const comment = new Comment({
+    text: req.body.text,
+    author: userId,
+    rating: Number(req.body.rating),
+    farmstandId: farmId
+  })
+  console.log("comment: ", comment)
+  await comment.save(function(err) {
+    if (err) {console.log("error: ", err)}
+ });
+  const farmRelated = await Farm.findById(farmId);
+  console.log("farmRelated: ", farmRelated);
+  farmRelated.comments.push(comment);
+  await farmRelated.save(function(err) {
+     if (err) {console.log("error: ", err)}
+  })
+  const userRelated = await User.findById(userId);
+  userRelated.comments.push(comment);
+  await userRelated.save(function(err) {
+    if (err) {console.log("error: ", err)}
+ })
+
+
+//     .then(farmstand => {
+//       console.log("0", farmstand)
+//         if (farmstand) {    
+//           console.log("farmstand: ", farmstand)
+//             req.body.author = req.user._id;
+//             console.log("1")
+//             farmstand.comments.push(req.body);
+//             console.log("2")
+//             farmstand.save()
+//             console.log("3")
+//             .then(farmstand => {
+//                 res.statusCode = 200;
+//                 res.setHeader('Content-Type', 'application/json');
+//                 res.json(farmstand);
+//             })
+//             .catch(err => next(err));
+//         } else {
+//             err = new Error(`Farm ${req.params.farmstandId} not found`);
+//             err.status = 404;
+//             return next(err);
+//         }
+//     })
+//     .catch(err => next(err));
+ })
+
+
+// .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+//   // Farm.findById(req.params.farmstandId)
+//   Farm.findById(`63ae4f5c7ab1e01e94b626e8`)
+//   console.log('req: ', req.body)
+//   console.log('farmstandId: ', `${req.params.farmstandId}`)
+//     .then(farmstand => {
+//       console.log("0", farmstand)
+//         if (farmstand) {    
+//           console.log("farmstand: ", farmstand)
+//             req.body.author = req.user._id;
+//             console.log("1")
+//             farmstand.comments.push(req.body);
+//             console.log("2")
+//             farmstand.save()
+//             console.log("3")
+//             .then(farmstand => {
+//                 res.statusCode = 200;
+//                 res.setHeader('Content-Type', 'application/json');
+//                 res.json(farmstand);
+//             })
+//             .catch(err => next(err));
+//         } else {
+//             err = new Error(`Farm ${req.params.farmstandId} not found`);
+//             err.status = 404;
+//             return next(err);
+//         }
+//     })
+//     .catch(err => next(err));
+// })
 .put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end(`PUT operation not supported on /farmstands/${req.params.farmstandId}/comments`);

@@ -1,24 +1,25 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const Comment = require('../models/commentSchema')
 
-const commentSchema = new Schema({
-  rating: {
-      type: Number,
-      min: 1,
-      max: 5,
-      required: true
-  },
-  text: {
-      type: String,
-      required: true
-  },
-  author: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }
-}, {
-  timestamps: true
-});
+// const commentSchema = new Schema({
+//   rating: {
+//       type: Number,
+//       min: 1,
+//       max: 5,
+//       required: true
+//   },
+//   text: {
+//       type: String,
+//       required: true
+//   },
+//   author: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   }
+// }, {
+//   timestamps: true
+// });
 
 const farmSchema = new Schema({
   farmstandName: {
@@ -55,8 +56,13 @@ const farmSchema = new Schema({
     type: [String],
   },
   featured: Boolean,
-  comments: [commentSchema],
-}, {
+  // comments: [commentSchema]
+  comments: [{
+    type: Schema.Types.ObjectId,
+    ref: 'comments'
+  }],
+}, 
+{
   timestamps: true
 },
 );

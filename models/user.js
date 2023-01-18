@@ -12,12 +12,16 @@ const userSchema = new Schema({
       default: ''
   },
   owner: [{
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "Farmstand"
   }],
   favorite: [{
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "Farmstand"
+  }],
+  comments: [{
+    type: Schema.Types.ObjectId,
+    ref: 'comments'
   }],
   facebookId: String,
 });
