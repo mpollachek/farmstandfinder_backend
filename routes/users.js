@@ -106,6 +106,60 @@ console.log("session:", req.session)
 console.log("user", req.user)
 })
 
+userRouter.route('/isfavorite/:farmstandId')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.cors, authenticate.verifyUser, (req, res, next) => {
+  console.log("req.query: ", req.query)
+  const farmstandId = req.params.farmstandId
+  if (req.isAuthenticated()) {
+    console.log("userId: ", req.user.id)
+    User.findById(req.user.id)
+    .then(user => {
+      console.log("user: ", user)
+      console.log("farmstandId: ", farmstandId)
+      if (user.favorite.includes(farmstandId)) {
+        let isFavorite = true
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(isFavorite);
+        console.log("isFavorite: ", isFavorite)
+      } else {
+        let isFavorite = false
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(isFavorite); 
+        console.log("isFavorite: ", isFavorite)
+      }
+    })
+    .catch(err => next(err));
+  }})
+  .put(cors.cors, authenticate.verifyUser, (req, res, next) => {
+    const farmstandId = req.params.farmstandId
+    if (req.isAuthenticated()) {
+      User.findById(req.user.id)
+      .then( async user => {
+        const favoritesArray = user.favorite
+        if (favoritesArray.includes(farmstandId)) {
+          console.log("user favorites: ", favoritesArray)
+          const index = favoritesArray.indexOf(farmstandId);
+          console.log("index: ", index)
+          favoritesArray.splice(index, 1);
+          console.log("fav array after splice: ", favoritesArray)
+          await user.updateOne({favorite: favoritesArray})
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.end("removed from favorites");
+        } else {
+          favoritesArray.push(farmstandId)
+          await user.updateOne({favorite: favoritesArray})
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(`added ${farmstandId} to favorites`); 
+        }
+      })
+      .catch(err => next(err));
+    }})
+
 // userRouter.route('/test')
 // .get(cors.corsWithOptions, authenticate.checkAuthenticated, (req, res, next) => {
 //   console.log("success! checkAuthenticated ", res)

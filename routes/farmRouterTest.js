@@ -351,7 +351,7 @@ farmRouter.route('/:farmstandId/comments')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get(cors.cors, (req, res, next) => {
   const farmId = req.params.farmstandId
-  console.log("get comments ", farmId)
+  //console.log("get comments ", farmId)
   // console.log("find by id: ", Farm.findById(farmId))
   Farm.findById(farmId)
   //console.log("farm: ", farm)
@@ -363,17 +363,18 @@ farmRouter.route('/:farmstandId/comments')
         }
     })
     .then(farmstand => {
-      console.log("comments res ", farmstand.comments)
+      //console.log("comments res ", farmstand.comments)
         if (farmstand) {
           let commentsArray = farmstand.comments.map(comment =>{
             return({
+            commentId: comment._id,
             rating: comment.rating,
             text: comment.text,
             author: comment.author.username,
             date: comment.createdAt,
             updated: comment.updatedAt
         })})
-          console.log("commentsArray ", commentsArray)
+          //console.log("commentsArray ", commentsArray)
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.json(commentsArray);
