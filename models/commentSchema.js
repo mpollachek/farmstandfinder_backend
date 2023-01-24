@@ -6,11 +6,9 @@ const commentSchema = new Schema({
       type: Number,
       min: 1,
       max: 5,
-      required: true
   },
   text: {
       type: String,
-      required: true
   },
   farmstandId: {
     type: Schema.Types.ObjectId,
@@ -19,7 +17,8 @@ const commentSchema = new Schema({
   },
   author: {
     type: Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
+    required: true
   }
 }, {
   timestamps: true

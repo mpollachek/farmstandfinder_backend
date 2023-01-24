@@ -1,5 +1,6 @@
 var express = require('express');
 const User = require('../models/user');
+const Farm = require('../models/farmSchema');
 const passport = require('passport');
 const authenticate = require('../authenticate');
 const cors = require('./cors');
@@ -105,6 +106,31 @@ userRouter.route('/protected')
 console.log("session:", req.session)
 console.log("user", req.user)
 })
+
+userRouter.route('/favorites')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.cors, authenticate.verifyUser, (req, res, next) => {
+  console.log("req.query: ", req.query)
+  if (req.isAuthenticated()) {
+    console.log("userId: ", req.user.id)
+    User.findById(req.user.id)
+    .then(user => {
+      console.log("user: ", user)
+      console.log("favorite array: ", user.favorite)
+      Farm.find({
+        _id: { $in: user.favorite }
+      })
+      .then(farms => {
+        console.log("farms: ", farms)
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(farms);
+      })
+    })
+    .catch(err => next(err));
+  }})
+
+
 
 userRouter.route('/isfavorite/:farmstandId')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
