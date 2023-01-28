@@ -164,6 +164,23 @@ userRouter
     }
   });
 
+  userRouter
+  .route("/favoritesIdList")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .get(cors.cors, authenticate.verifyUser, (req, res, next) => {
+    console.log("req.query: ", req.query);
+    if (req.isAuthenticated()) {
+      console.log("userId: ", req.user.id);
+      User.findById(req.user.id)
+        .then((user) => {
+          console.log("user: ", user);
+          console.log("favorite array: ", user.favorite);
+          res.json(user.favorite);
+        })
+        .catch((err) => next(err));
+    }
+  });
+
 userRouter
   .route("/isfavorite/:farmstandId")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))

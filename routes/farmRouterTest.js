@@ -130,7 +130,7 @@ farmRouter
     // }
     // console.log('seasons array: ', seasons)
     console.log("files: " + JSON.stringify(req.files));
-    console.log("req: " + JSON.stringify(req.body));
+    console.log("req.body: ", req.body);
     const imagePaths = [];
     const imageNames = [];
     if (req.files) {
@@ -142,6 +142,12 @@ farmRouter
       console.log("imagePaths: " + imagePaths);
       console.log("imageNames: " + imageNames);
     }
+    const productsArray = JSON.parse(req.body.products)
+    const index = productsArray.indexOf("");
+    if (index !== -1) {
+      productsArray.splice(index, 1);
+    }
+    console.log('productsArray: ', productsArray)
     Farm.create({
       farmstandName: req.body.farmstandName,
       location: {
@@ -154,7 +160,7 @@ farmRouter
         country: req.body.country,
       },
       description: req.body.description,
-      products: req.body.products,
+      products: productsArray,
       //seasons: seasonsArray,
       images: imageNames,
     })
