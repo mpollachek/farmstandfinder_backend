@@ -142,12 +142,23 @@ farmRouter
       console.log("imagePaths: " + imagePaths);
       console.log("imageNames: " + imageNames);
     }
+    const seasonsArray = [];
+    if (req.body.seasons === "harvest") {
+      seasonsArray.push("harvest", "yearRoundQuery");
+    } else {
+      seasonsArray.push("yearRound", "yearRoundQuery");
+    }
     const productsArray = JSON.parse(req.body.products)
     const index = productsArray.indexOf("");
     if (index !== -1) {
       productsArray.splice(index, 1);
     }
     console.log('productsArray: ', productsArray)
+    const typeArray = JSON.parse(req.body.farmstandType)
+    const indexType = typeArray.indexOf("");
+    if (indexType !== -1) {
+      typeArray.splice(indexType, 1);
+    }
     Farm.create({
       farmstandName: req.body.farmstandName,
       location: {
@@ -161,7 +172,8 @@ farmRouter
       },
       description: req.body.description,
       products: productsArray,
-      //seasons: seasonsArray,
+      farmstandType: typeArray,
+      seasons: seasonsArray,
       images: imageNames,
     })
       .then(async (farm) => {
@@ -377,6 +389,61 @@ farmRouter
     }
   );
 /* End Each Farmstand by ID */
+
+/* Allow anyone to add more images to farmstand */
+farmRouter
+  .route("/:farmstandId/images")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .put(
+    cors.corsWithOptions, upload.array("image", 12),
+    /*authenticate.verifyUser, authenticate.verifyAdmin,*/ (req, res, next) => {
+      console.log("farmstandId: " + req.params.farmstandId);
+      console.log('req.body: ', req.body)
+      console.log("files: " + JSON.stringify(req.files));
+      const farmId = req.params.farmstandId;
+      const imageNames = [];
+      if (req.files) {
+        for (file of req.files) {
+          console.log("filename: ", file.filename)
+        imageNames.push(file.filename);
+      }}
+      console.log("imageNames", imageNames)
+      Farm.findByIdAndUpdate(
+        req.params.farmstandId,
+        {
+          /*need to push into products array rather than set*/
+          $push: { images:imageNames, }
+        },
+        { upsert: true }
+      )
+        .then((farm) => {
+          const farmPath = `${dir}/${farmId}`;
+          console.log("farm.images: " + farm.images);
+        if (!fs.existsSync(farmPath)) {
+          fs.mkdirSync(farmPath);
+        }
+        for (item of farm.images) {
+          console.log("item " + item);
+          if (fs.existsSync(`${tempPath}/${item}`)) {
+          fs.rename(
+            `${tempPath}/${item}`,
+            `${farmPath}/${item}`,
+            function (err) {
+              if (err) {
+                console.log("file move error: " + err);
+              }
+            }
+          );
+          }}
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(farm);
+        })
+        .catch((err) => next(err));
+    }
+  )
+  /* End Allow anyone to add more images to farmstand */
+
 
 /* Comments by farmstand ID */
 farmRouter
