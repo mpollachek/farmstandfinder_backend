@@ -265,6 +265,10 @@ userRouter
         .then(async (user) => {
           console.log("user", user)
           const ownerArray = user.owner;
+          const farmOwner = await Farm.findById(farmstandId);
+          console.log("farmOwner: ", farmOwner)
+          const farmOwnerArray = farmOwner.owner;
+          console.log("farmOwnerArray: ", farmOwnerArray)
           try {
           if (ownerArray.includes(farmstandId)) {
             console.log("user owned: ", ownerArray);
@@ -272,7 +276,10 @@ userRouter
             console.log("index: ", index);
             ownerArray.splice(index, 1);
             console.log("owner array after splice: ", ownerArray);
-            await user.updateOne({ owner: ownerArray });
+            await user.updateOne({ owner: ownerArray });            
+            const indexFarmOwner = farmOwnerArray.indexOf(req.user.id)
+            farmOwnerArray.splice(indexFarmOwner, 1);
+            await farmOwner.updateOne({ owner: farmOwnerArray })
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
             res.end("removed from owned");
@@ -284,6 +291,8 @@ userRouter
             console.log("owner array after push: ", ownerArray)
             await user.updateOne({ owner: ownerArray });
             console.log("user.owner after update: ", user.owner)
+            farmOwnerArray.push(req.user.id);
+            await farmOwner.updateOne({owner: farmOwnerArray})
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
             res.end(`added ${farmstandId} to owner`);

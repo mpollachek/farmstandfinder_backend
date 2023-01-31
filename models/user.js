@@ -17,6 +17,12 @@ const userSchema = new Schema({
       ref: "Farmstand",
     },
   ],
+  ownercomments: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Farmstand",
+    },
+  ],
   favorite: [
     {
       type: Schema.Types.ObjectId,

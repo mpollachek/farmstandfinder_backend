@@ -68,6 +68,18 @@ const farmSchema = new Schema(
         ref: "comments",
       },
     ],
+    ownercomments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "ownercomments",
+      },
+    ],
+    owner: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     timestamps: true,

@@ -1,6 +1,7 @@
 const express = require("express");
 const Farm = require("../models/farmSchema");
 const Comment = require("../models/commentSchema");
+const OwnerComment = require("../models/ownerCommentSchema");
 const User = require("../models/user");
 const authenticate = require("../authenticate");
 const cors = require("./cors");
@@ -36,7 +37,6 @@ const farmRouter = express.Router();
 farmRouter
   .route("/")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
-
   .get(cors.cors, (req, res, next) => {
     console.log("long: ", req.query.longitude);
     console.log("lat: ", req.query.latitude);
@@ -334,19 +334,19 @@ farmRouter
 farmRouter
   .route("/:farmstandId")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
-  .get(cors.cors, (req, res, next) => {
-    Farm.findById(req.params.farmstandId)
-    .populate({
+  .get(cors.cors, async (req, res, next) => {
+    const farm = Farm.findById(req.params.farmstandId)
+    const populatedArray = await farm.populate([{
       path: "comments",
       select: "rating"
-    })
-      .then((farmstand) => {
+    }, {path: "ownercomments"}])
+    // const populatedArray = await farm.populate(["comments", "ownercomments", "owner"])      
+        console.log("populated: ", populatedArray)
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/json");
-        res.json(farmstand);
-      })
-      .catch((err) => next(err));
-  })
+        res.json(populatedArray);    
+     })
+    // .catch((err) => next(err))
   .post(
     cors.corsWithOptions,
     /*authenticate.verifyUser,*/ (req, res) => {
@@ -676,5 +676,85 @@ farmRouter
       .catch((err) => next(err));
   });
 /* End comments by comment ID for editing and deleting */
+
+/* Owner Comments by farmstand Id */
+farmRouter
+  .route("/:farmstandId/ownercomments")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .get(cors.cors, (req, res, next) => {
+    const farmId = req.params.farmstandId;
+    //console.log("get comments ", farmId)
+    // console.log("find by id: ", Farm.findById(farmId))
+    Farm.findById(farmId)
+      //console.log("farm: ", farm)
+      .populate({
+        path: "comments",
+        populate: {
+          path: "author",
+          select: "username",
+        },
+      })
+      .then((farmstand) => {
+        //console.log("comments res ", farmstand.comments)
+        if (farmstand) {
+          let commentsArray = farmstand.comments.map((comment) => {
+            return {
+              commentId: comment._id,
+              text: comment.text,
+              author: comment.author.username,
+              date: comment.createdAt,
+              updated: comment.updatedAt,
+            };
+          });
+          //console.log("commentsArray ", commentsArray)
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(commentsArray);
+        } else {
+          err = new Error(`farmstand ${farmId} not found`);
+          err.status = 404;
+          return next(err);
+        }
+      })
+      .catch((err) => next(err));
+  })
+  .post(
+    cors.corsWithOptions,
+    authenticate.verifyUser,
+    async (req, res, next) => {
+      const farmId = req.params.farmstandId;
+      const userId = req.body.author;
+      console.log("req: ", req.body);
+      console.log("farmstandId: ", `${req.params.farmstandId}`);
+      // user populate owner ids must include farmId
+      const comment = new OwnerComment({
+        text: req.body.text,
+        author: userId,
+        farmstandId: farmId,
+      });
+      console.log("comment: ", comment);
+      await comment.save(function (err) {
+        if (err) {
+          console.log("error: ", err);
+        }
+      });
+      const farmRelated = await Farm.findById(farmId);
+      console.log("farmRelated: ", farmRelated);
+      farmRelated.ownercomments.push(comment);
+      await farmRelated.save(function (err) {
+        if (err) {
+          console.log("error: ", err);
+        }
+      });
+      const userRelated = await User.findById(userId);
+      userRelated.ownercomments.push(comment);
+      await userRelated.save(function (err) {
+        if (err) {
+          console.log("error: ", err);
+        }
+      });
+    }
+  )
+/* End Owner Comments by farmstand Id */
 
 module.exports = farmRouter;
