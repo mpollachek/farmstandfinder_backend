@@ -529,62 +529,9 @@ farmRouter
           console.log("error: ", err);
         }
       });
-
-      //     .then(farmstand => {
-      //       console.log("0", farmstand)
-      //         if (farmstand) {
-      //           console.log("farmstand: ", farmstand)
-      //             req.body.author = req.user._id;
-      //             console.log("1")
-      //             farmstand.comments.push(req.body);
-      //             console.log("2")
-      //             farmstand.save()
-      //             console.log("3")
-      //             .then(farmstand => {
-      //                 res.statusCode = 200;
-      //                 res.setHeader('Content-Type', 'application/json');
-      //                 res.json(farmstand);
-      //             })
-      //             .catch(err => next(err));
-      //         } else {
-      //             err = new Error(`Farm ${req.params.farmstandId} not found`);
-      //             err.status = 404;
-      //             return next(err);
-      //         }
-      //     })
-      //     .catch(err => next(err));
     }
   )
 
-  // .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-  //   // Farm.findById(req.params.farmstandId)
-  //   Farm.findById(`63ae4f5c7ab1e01e94b626e8`)
-  //   console.log('req: ', req.body)
-  //   console.log('farmstandId: ', `${req.params.farmstandId}`)
-  //     .then(farmstand => {
-  //       console.log("0", farmstand)
-  //         if (farmstand) {
-  //           console.log("farmstand: ", farmstand)
-  //             req.body.author = req.user._id;
-  //             console.log("1")
-  //             farmstand.comments.push(req.body);
-  //             console.log("2")
-  //             farmstand.save()
-  //             console.log("3")
-  //             .then(farmstand => {
-  //                 res.statusCode = 200;
-  //                 res.setHeader('Content-Type', 'application/json');
-  //                 res.json(farmstand);
-  //             })
-  //             .catch(err => next(err));
-  //         } else {
-  //             err = new Error(`Farm ${req.params.farmstandId} not found`);
-  //             err.status = 404;
-  //             return next(err);
-  //         }
-  //     })
-  //     .catch(err => next(err));
-  // })
   .put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end(

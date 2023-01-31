@@ -238,10 +238,61 @@ userRouter
     }
   });
 
-// userRouter.route('/test')
-// .get(cors.corsWithOptions, authenticate.checkAuthenticated, (req, res, next) => {
-//   console.log("success! checkAuthenticated ", res)
-//     });
+  userRouter
+  .route("/owned")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .get(cors.cors, authenticate.verifyUser, (req, res, next) => {
+    console.log("req.query: ", req.query);
+    if (req.isAuthenticated()) {
+      console.log("userId: ", req.user.id);
+      User.findById(req.user.id)
+        .then((user) => {
+          console.log("user: ", user);
+          console.log("owned array: ", user.owner);
+          res.json(user.owner);
+        })
+        .catch((err) => next(err));
+    }
+  })
+
+  userRouter.route("/owned/:farmstandId")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+    const farmstandId = req.params.farmstandId;
+    console.log("farmstandId: ", farmstandId)
+    if (req.isAuthenticated()) {
+      User.findById(req.user.id)
+        .then(async (user) => {
+          console.log("user", user)
+          const ownerArray = user.owner;
+          try {
+          if (ownerArray.includes(farmstandId)) {
+            console.log("user owned: ", ownerArray);
+            const index = ownerArray.indexOf(farmstandId);
+            console.log("index: ", index);
+            ownerArray.splice(index, 1);
+            console.log("owner array after splice: ", ownerArray);
+            await user.updateOne({ owner: ownerArray });
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.end("removed from owned");
+          } else {
+            console.log("owner array before push: ", ownerArray)
+            console.log("farmstandId: ", farmstandId)
+            console.log("user.owner: ", user.owner)
+            ownerArray.push(farmstandId);
+            console.log("owner array after push: ", ownerArray)
+            await user.updateOne({ owner: ownerArray });
+            console.log("user.owner after update: ", user.owner)
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.end(`added ${farmstandId} to owner`);
+          }
+        } catch(err) {console.log("error: ", err)};
+        })
+        .catch((err) => next(err));
+    }
+  });
 
 userRouter
   .route("/test")
