@@ -144,7 +144,7 @@ userRouter
       console.log("userId: ", req.user.id);
       User.findById(req.user.id)
         .then((user) => {
-          console.log("user: ", user);
+          //console.log("user: ", user);
           console.log("favorite array: ", user.favorite);
           Farm.find({
             _id: { $in: user.favorite },
@@ -173,7 +173,7 @@ userRouter
       console.log("userId: ", req.user.id);
       User.findById(req.user.id)
         .then((user) => {
-          console.log("user: ", user);
+          //console.log("user: ", user);
           console.log("favorite array: ", user.favorite);
           res.json(user.favorite);
         })
@@ -191,7 +191,7 @@ userRouter
       console.log("userId: ", req.user.id);
       User.findById(req.user.id)
         .then((user) => {
-          console.log("user: ", user);
+          //console.log("user: ", user);
           console.log("farmstandId: ", farmstandId);
           if (user.favorite.includes(farmstandId)) {
             let isFavorite = true;
@@ -247,7 +247,7 @@ userRouter
       console.log("userId: ", req.user.id);
       User.findById(req.user.id)
         .then((user) => {
-          console.log("user: ", user);
+          //console.log("user: ", user);
           console.log("owned array: ", user.owner);
           res.json(user.owner);
         })
@@ -263,7 +263,7 @@ userRouter
     if (req.isAuthenticated()) {
       User.findById(req.user.id)
         .then(async (user) => {
-          console.log("user", user)
+          //console.log("user", user)
           const ownerArray = user.owner;
           const farmOwner = await Farm.findById(farmstandId);
           console.log("farmOwner: ", farmOwner)

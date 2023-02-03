@@ -443,6 +443,34 @@ farmRouter
     }
   )
   /* End Allow anyone to add more images to farmstand */
+farmRouter
+  .route("/:farmstandId/addproducts")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .put( cors.corsWithOptions, (req, res, next) => {
+    console.log("req: ", req.body)
+    const productNames = [];
+      if (req.body.products) {
+        for (product of req.body.products) {
+          if (product) {
+          productNames.push(product)
+          }
+        }
+      }
+      console.log("productNames after for loop push: ", productNames)
+    Farm.findByIdAndUpdate(req.params.farmstandId, {
+      $push: { products: { $each: productNames } }
+      //$push: {products: productNames}
+    })
+    .then((response) => {
+      console.log("response of products: ", response.products)
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/json");
+      res.json(response);
+    })
+    .catch((err) => next(err));
+  })
+
+  /* End Allow anyone to add products to farmstand */
 
 
 /* Comments by farmstand ID */
@@ -459,7 +487,6 @@ farmRouter
         path: "comments",
         populate: {
           path: "author",
-          select: "username",
         },
       })
       .then((farmstand) => {
@@ -471,6 +498,8 @@ farmRouter
               rating: comment.rating,
               text: comment.text,
               author: comment.author.username,
+              authorId: comment.author._id,
+              farmstandId: comment.farmstandId,
               date: comment.createdAt,
               updated: comment.updatedAt,
             };
@@ -599,46 +628,20 @@ farmRouter
     );
   })
   .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-    Farm.findById(req.params.farmstandId)
-      .then((farmstand) => {
-        if (farmstand && farmstand.comments.id(req.params.commentId)) {
-          if (
-            farmstand.comments
-              .id(req.params.commentId)
-              .author._id.equals(req.user._id)
-          ) {
-            if (req.body.rating) {
-              farmstand.comments.id(req.params.commentId).rating =
-                req.body.rating;
-            }
-            if (req.body.text) {
-              farmstand.comments.id(req.params.commentId).text = req.body.text;
-            }
-            farmstand
-              .save()
-              .then((farmstand) => {
-                res.statusCode = 200;
-                res.setHeader("Content-Type", "application/json");
-                res.json(farmstand);
-              })
-              .catch((err) => next(err));
-          } else {
-            const error = new Error("not authorized to edit comment");
-            err.status = 403;
-            return next(err);
-          }
-        } else if (!farmstand) {
-          err = new Error(`farmstand ${req.params.farmstandId} not found`);
-          err.status = 404;
-          return next(err);
-        } else {
-          err = new Error(`Comment ${req.params.commentId} not found`);
-          err.status = 404;
-          return next(err);
-        }
+    console.log("req.body: ", req.body)
+    const farmstandId = req.params.farmstandId
+    const commentId = req.params.commentId
+    Comment.findByIdAndUpdate(commentId, {
+        $set: req.body
       })
-      .catch((err) => next(err));
-  })
+      .then((response) => {
+        console.log("response of owner comment put: ", response)
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(response);
+      })
+      .catch((err) => console.log(err));
+    })
 
   .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     Farm.findById(req.params.farmstandId)
@@ -724,7 +727,7 @@ farmRouter
     async (req, res, next) => {
       const farmId = req.params.farmstandId;
       const userId = req.body.author;
-      console.log("req: ", req.body);
+      //console.log("req: ", req.body);
       console.log("farmstandId: ", `${req.params.farmstandId}`);
       // user populate owner ids must include farmId
       const comment = new OwnerComment({
@@ -739,7 +742,7 @@ farmRouter
         }
       });
       const farmRelated = await Farm.findById(farmId);
-      console.log("farmRelated: ", farmRelated);
+      //console.log("farmRelated: ", farmRelated);
       farmRelated.ownercomments.push(comment);
       await farmRelated.save(function (err) {
         if (err) {
@@ -756,5 +759,88 @@ farmRouter
     }
   )
 /* End Owner Comments by farmstand Id */
+
+/* owner comments by comment ID for editing and deleting */
+farmRouter
+  .route("/:farmstandId/ownercomments/:commentId")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .get(cors.cors, (req, res, next) => {
+    Farm.findById(req.params.farmstandId)
+      .populate("comments.author")
+      .then((farmstand) => {
+        if (farmstand && farmstand.ownercomments.id(req.params.commentId)) {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(farmstand.ownercomments.id(req.params.commentId));
+        } else if (!farmstand) {
+          err = new Error(`Farm ${req.params.farmstandId} not found`);
+          err.status = 404;
+          return next(err);
+        } else {
+          err = new Error(`Comment ${req.params.commentId} not found`);
+          err.status = 404;
+          return next(err);
+        }
+      })
+      .catch((err) => next(err));
+  })
+  .post(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+    res.statusCode = 403;
+    res.end(
+      `POST operation not supported on /farmstands/${req.params.farmstandId}/comments/${req.params.commentId}`
+    );
+  })
+  .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+    console.log("req.body: ", req.body)
+    const farmstandId = req.params.farmstandId
+    const commentId = req.params.commentId
+    OwnerComment.findByIdAndUpdate(commentId, {
+        $set: req.body
+      })
+      .then((response) => {
+        console.log("response of owner comment put: ", response)
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(response);
+      })
+      .catch((err) => console.log(err));
+    })
+
+  .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+    Farm.findById(req.params.farmstandId)
+      .then((farmstand) => {
+        if (farmstand && farmstand.ownercomments.id(req.params.commentId)) {
+          if (
+            farmstand.ownercomments
+              .id(req.params.commentId)
+              .author._id.equals(req.user._id)
+          ) {
+            farmstand.ownercomments.id(req.params.commentId).remove();
+            farmstand
+              .save()
+              .then((farmstand) => {
+                res.statusCode = 200;
+                res.setHeader("Content-Type", "application/json");
+                res.json(farmstand);
+              })
+              .catch((err) => next(err));
+          } else {
+            const error = new Error("Not Authorized");
+            error.status = 403;
+            return next();
+          }
+        } else if (!farmstand) {
+          err = new Error(`farmstand ${req.params.farmstandId} not found`);
+          err.status = 404;
+          return next(err);
+        } else {
+          err = new Error(`Comment ${req.params.commentId} not found`);
+          err.status = 404;
+          return next(err);
+        }
+      })
+      .catch((err) => console.log("err: ", err));
+  });
+/* End owner comments by comment ID for editing and deleting */
 
 module.exports = farmRouter;
