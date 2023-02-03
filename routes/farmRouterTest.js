@@ -643,41 +643,28 @@ farmRouter
       .catch((err) => console.log(err));
     })
 
-  .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-    Farm.findById(req.params.farmstandId)
-      .then((farmstand) => {
-        if (farmstand && farmstand.comments.id(req.params.commentId)) {
-          if (
-            farmstand.comments
-              .id(req.params.commentId)
-              .author._id.equals(req.user._id)
-          ) {
-            farmstand.comments.id(req.params.commentId).remove();
-            farmstand
-              .save()
-              .then((farmstand) => {
-                res.statusCode = 200;
-                res.setHeader("Content-Type", "application/json");
-                res.json(farmstand);
-              })
-              .catch((err) => next(err));
-          } else {
-            const error = new Error("Not Authorized");
-            error.status = 403;
-            return next();
-          }
-        } else if (!farmstand) {
-          err = new Error(`farmstand ${req.params.farmstandId} not found`);
-          err.status = 404;
-          return next(err);
-        } else {
-          err = new Error(`Comment ${req.params.commentId} not found`);
-          err.status = 404;
-          return next(err);
-        }
-      })
-      .catch((err) => next(err));
-  });
+    .delete(cors.corsWithOptions, authenticate.verifyUser, async (req, res, next) => {
+      const farmstandId = req.params.farmstandId
+      const commentId = req.params.commentId
+      const userId = req.user._id
+      console.log("req.body: ", req.body)
+  
+          const removeFarm = await Farm.findByIdAndUpdate(farmstandId, {
+            $pull: {comments: commentId}
+          }, { new: true })
+          console.log("removeFarm: ", removeFarm.comments)
+          const removeUser = await User.findByIdAndUpdate(userId, {
+            $pull: {comments: commentId}
+          }, { new: true })
+          console.log("removeUser: ", removeUser.comments)
+          const removeComment = await Comment.findByIdAndDelete(commentId)
+          console.log("removeComment: ", removeComment)
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(removeComment);
+                })
+
+
 /* End comments by comment ID for editing and deleting */
 
 /* Owner Comments by farmstand Id */
@@ -806,41 +793,27 @@ farmRouter
       .catch((err) => console.log(err));
     })
 
-  .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-    Farm.findById(req.params.farmstandId)
-      .then((farmstand) => {
-        if (farmstand && farmstand.ownercomments.id(req.params.commentId)) {
-          if (
-            farmstand.ownercomments
-              .id(req.params.commentId)
-              .author._id.equals(req.user._id)
-          ) {
-            farmstand.ownercomments.id(req.params.commentId).remove();
-            farmstand
-              .save()
-              .then((farmstand) => {
-                res.statusCode = 200;
-                res.setHeader("Content-Type", "application/json");
-                res.json(farmstand);
+  .delete(cors.corsWithOptions, authenticate.verifyUser, async (req, res, next) => {
+    const farmstandId = req.params.farmstandId
+    const commentId = req.params.commentId
+    const userId = req.user._id
+    console.log("req.body: ", req.body)
+
+        const removeFarm = await Farm.findByIdAndUpdate(farmstandId, {
+          $pull: {ownercomments: commentId}
+        }, { new: true })
+        console.log("removeFarm: ", removeFarm.ownercomments)
+        const removeUser = await User.findByIdAndUpdate(userId, {
+          $pull: {ownercomments: commentId}
+        }, { new: true })
+        console.log("removeUser: ", removeUser.ownercomments)
+        const removeComment = await OwnerComment.findByIdAndDelete(commentId)
+        console.log("removeComment: ", removeComment)
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(removeComment);
               })
-              .catch((err) => next(err));
-          } else {
-            const error = new Error("Not Authorized");
-            error.status = 403;
-            return next();
-          }
-        } else if (!farmstand) {
-          err = new Error(`farmstand ${req.params.farmstandId} not found`);
-          err.status = 404;
-          return next(err);
-        } else {
-          err = new Error(`Comment ${req.params.commentId} not found`);
-          err.status = 404;
-          return next(err);
-        }
-      })
-      .catch((err) => console.log("err: ", err));
-  });
+
 /* End owner comments by comment ID for editing and deleting */
 
 module.exports = farmRouter;
