@@ -443,6 +443,8 @@ farmRouter
     }
   )
   /* End Allow anyone to add more images to farmstand */
+
+  /* Allow anyone to add products to farmstand */
 farmRouter
   .route("/:farmstandId/addproducts")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
@@ -469,8 +471,35 @@ farmRouter
     })
     .catch((err) => next(err));
   })
-
   /* End Allow anyone to add products to farmstand */
+
+  /* Allow owner to edit products to farmstand */
+farmRouter
+.route("/:farmstandId/editproducts")
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.put( cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+  const farmstandId = req.params.farmstandId
+  const userId = req.user._id
+  console.log("req: ", req.body)
+  
+  Farm.findByIdAndUpdate(farmstandId, {
+    $set: { products: req.body.products }
+
+    // $cond: [owner.includes(userId), {$set: { products: req.body.products }}, res.end("failed to update products")]
+
+  //   $cond: { if: owner.includes(userId), then: {
+  //   $set: { products: req.body.products }
+  // }, else: res.end("failed to update products") } 
+  })
+  .then((response) => {
+    console.log("response of products: ", response.products)
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    res.json(response);
+  })
+  .catch((err) => next(err));
+})
+/* End Allow owner to edit products to farmstand */
 
 
 /* Comments by farmstand ID */
