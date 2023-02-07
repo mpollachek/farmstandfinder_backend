@@ -335,10 +335,11 @@ farmRouter
   .route("/:farmstandId")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
   .get(cors.cors, async (req, res, next) => {
+    console.log("test /farmstandId")
     const farm = Farm.findById(req.params.farmstandId)
     const populatedArray = await farm.populate([{
       path: "comments",
-      select: "rating"
+      populate: { path: "author", select: "username" }
     }, {path: "ownercomments"}])
     // const populatedArray = await farm.populate(["comments", "ownercomments", "owner"])      
         console.log("populated: ", populatedArray)
@@ -574,19 +575,20 @@ farmRouter
       });
       const farmRelated = await Farm.findById(farmId);
       console.log("farmRelated: ", farmRelated);
-      farmRelated.comments.push(comment);
+      farmRelated.comments.splice(0, 0, comment);
       await farmRelated.save(function (err) {
         if (err) {
           console.log("error: ", err);
         }
       });
       const userRelated = await User.findById(userId);
-      userRelated.comments.push(comment);
+      userRelated.comments.splice(0, 0, comment);
       await userRelated.save(function (err) {
         if (err) {
           console.log("error: ", err);
         }
       });
+      res.end("new comment submitted")
     }
   )
 
@@ -663,6 +665,18 @@ farmRouter
     Comment.findByIdAndUpdate(commentId, {
         $set: req.body
       })
+      .then( async (comment) => {
+        const farmRelated = await Farm.findById(farmstandId);
+        const farmCommentsArray = farmRelated.comments
+        const index = farmCommentsArray.indexOf(commentId)
+        farmCommentsArray.splice(index, 1);
+        farmCommentsArray.splice(0, 0, commentId)
+        await farmRelated.save(function (err) {
+          if (err) {
+            console.log("error: ", err);
+          }
+        })
+      })
       .then((response) => {
         console.log("response of owner comment put: ", response)
         res.statusCode = 200;
@@ -707,25 +721,26 @@ farmRouter
     Farm.findById(farmId)
       //console.log("farm: ", farm)
       .populate({
-        path: "comments",
+        path: "ownercomments",
         populate: {
           path: "author",
-          select: "username",
         },
       })
       .then((farmstand) => {
-        //console.log("comments res ", farmstand.comments)
+        console.log("comments res ", farmstand.ownercomments)
         if (farmstand) {
-          let commentsArray = farmstand.comments.map((comment) => {
+          let commentsArray = farmstand.ownercomments.map((comment) => {
             return {
               commentId: comment._id,
               text: comment.text,
               author: comment.author.username,
+              authorId: comment.author._id,
+              farmstandId: comment.farmstandId,
               date: comment.createdAt,
               updated: comment.updatedAt,
             };
           });
-          //console.log("commentsArray ", commentsArray)
+          console.log("commentsArray ", commentsArray)
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
           res.json(commentsArray);
@@ -759,19 +774,20 @@ farmRouter
       });
       const farmRelated = await Farm.findById(farmId);
       //console.log("farmRelated: ", farmRelated);
-      farmRelated.ownercomments.push(comment);
+      farmRelated.ownercomments.splice(0, 0, comment);
       await farmRelated.save(function (err) {
         if (err) {
           console.log("error: ", err);
         }
       });
       const userRelated = await User.findById(userId);
-      userRelated.ownercomments.push(comment);
+      userRelated.ownercomments.splice(0, 0, comment);
       await userRelated.save(function (err) {
         if (err) {
           console.log("error: ", err);
         }
       });
+      res.end("new comment submitted")
     }
   )
 /* End Owner Comments by farmstand Id */
@@ -813,6 +829,19 @@ farmRouter
     OwnerComment.findByIdAndUpdate(commentId, {
         $set: req.body
       })
+      .then( async (comment) => {
+        const farmRelated = await Farm.findById(farmstandId);
+        const farmCommentsArray = farmRelated.ownercomments
+        const index = farmCommentsArray.indexOf(commentId)
+        farmCommentsArray.splice(index, 1);
+        farmCommentsArray.splice(0, 0, commentId)
+        await farmRelated.save(function (err) {
+          if (err) {
+            console.log("error: ", err);
+          }
+        })
+      })
+      //console.log("farmRelated: ", farmRelated);
       .then((response) => {
         console.log("response of owner comment put: ", response)
         res.statusCode = 200;
