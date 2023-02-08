@@ -342,7 +342,7 @@ farmRouter
       populate: { path: "author", select: "username" }
     }, {path: "ownercomments"}])
     // const populatedArray = await farm.populate(["comments", "ownercomments", "owner"])      
-        console.log("populated: ", populatedArray)
+        //console.log("populated: ", populatedArray)
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/json");
         res.json(populatedArray);    
@@ -417,16 +417,19 @@ farmRouter
         },
         { upsert: true }
       )
-        .then((farm) => {
+        .then(async (farm) => {
           const farmPath = `${dir}/${farmId}`;
           console.log("farm.images: " + farm.images);
+          console.log("image Names 2: ", imageNames)
         if (!fs.existsSync(farmPath)) {
-          fs.mkdirSync(farmPath);
+          await fs.mkdirSync(farmPath);
         }
-        for (item of farm.images) {
+        for (item of imageNames) {
           console.log("item " + item);
+          console.log("temp path: ", `${tempPath}/${item}`)
+          console.log("farm path: ", `${farmPath}/${item}`)
           if (fs.existsSync(`${tempPath}/${item}`)) {
-          fs.rename(
+          await fs.rename(
             `${tempPath}/${item}`,
             `${farmPath}/${item}`,
             function (err) {
@@ -501,6 +504,36 @@ farmRouter
   .catch((err) => next(err));
 })
 /* End Allow owner to edit products to farmstand */
+
+/* Allow owner to remove image */
+farmRouter
+.route("/:farmstandId/removeimage")
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.put( cors.corsWithOptions, authenticate.verifyUser, async (req, res, next) => {
+  console.log("req: ", req.body)
+  const farmstandId = req.params.farmstandId
+  const userId = req.user._id
+  const image = req.body.image
+  const imagePath = `${dir}/${farmstandId}/${image}`
+  console.log("imagePath: ", imagePath)
+  try {
+    fs.unlinkSync(`${imagePath}`)
+    console.log(`image ${image} removed from ${imagePath}`)
+  } catch(err) {
+    console.error(err)
+  }  
+  const removeFarmImage = await Farm.findByIdAndUpdate(farmstandId, {
+    $pull: { images: image }
+  }, { new: true })
+  .then((response) => {
+    console.log("response of remove image: ", response.images)
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    res.json(response);
+  })
+  .catch((err) => next(err));
+})
+/* Allow owner to remove image */
 
 
 /* Comments by farmstand ID */
