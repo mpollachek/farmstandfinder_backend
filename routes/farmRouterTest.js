@@ -391,6 +391,39 @@ farmRouter
   );
 /* End Each Farmstand by ID */
 
+/* Allow Owner to edit name, description, type, season */
+farmRouter
+.route("/:farmstandId/editdescription")
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.put( cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+  const farmstandId = req.params.farmstandId
+  const userId = req.user._id
+  console.log("req: ", req.body)
+  const seasonsArray = [];
+    if (req.body.values.seasons === "harvest") {
+      seasonsArray.push("harvest", "yearRoundQuery");
+    } else {
+      seasonsArray.push("yearRound", "yearRoundQuery");
+    }
+  
+  Farm.findByIdAndUpdate(farmstandId, {
+    $set: { 
+      farmstandName: req.body.farmstandName,
+      description:  req.body.description,
+      seasons: seasonsArray,
+      farmstandType: req.body.values.farmstandType
+    }
+  })
+  .then((response) => {
+    console.log("response of edit description: ", response)
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    res.json(response);
+  })
+  .catch((err) => next(err));
+})
+/* End Allow Owner to edit name, description, type, season */
+
 /* Allow anyone to add more images to farmstand */
 farmRouter
   .route("/:farmstandId/images")
