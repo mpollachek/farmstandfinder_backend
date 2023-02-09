@@ -60,6 +60,7 @@ const farmSchema = new Schema(
     // comments: [commentSchema]
     farmstandType: {
       type: [String],
+      required: true,
       enum: ["produce", "meat", "dairy", "eggs", "farmersMarket", "gardenCenter", "playArea", "therapy"]
     },
     comments: [

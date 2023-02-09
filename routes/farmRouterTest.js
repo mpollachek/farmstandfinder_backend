@@ -38,16 +38,21 @@ farmRouter
   .route("/")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
   .get(cors.cors, (req, res, next) => {
+    console.log("req.body: ", req.body)
     console.log("long: ", req.query.longitude);
     console.log("lat: ", req.query.latitude);
     console.log("distance: ", req.query.distance);
     console.log("products: ", req.query.products);
+    console.log("farmstandTypes: ", req.query.farmstandType)
     console.log("seasons: ", req.query.seasons);
     console.log("typeof seasons: ", typeof req.query.seasons);
+    console.log("req.query.productSearchType: ", req.query.productSearchType)
     const longitude = req.query.longitude;
     const latitude = req.query.latitude;
     const distance = req.query.distance;
     const products = req.query.products;
+    const postedTypes = req.query.farmstandType;
+    const productSearchType = req.query.productSearchType
     //const seasons = req.query.seasons;
     let seasons = [];
     if (req.query.seasons === "harvest") {
@@ -56,8 +61,18 @@ farmRouter
       seasons.push("yearRoundQuery");
     }
     console.log("seasons array: ", seasons);
+    let types = [];
+    if (postedTypes) {
+      for (const i of postedTypes) {
+        types.push(i)
+      }
+    } else {
+      types.push("produce", "meat", "dairy", "eggs", "farmersMarket", "gardenCenter", "playArea", "therapy", [])
+    }
+    console.log("types: ", types)
 
-    if (products) {
+    if (products && productSearchType === "all" ) {
+      console.log("search with all")
       Farm.find({
         $and: [
           {
@@ -72,7 +87,40 @@ farmRouter
               },
             },
           },
+          { farmstandType: { $in: types }},
           { products: { $all: products } },
+          { seasons: { $all: seasons } },
+        ],
+      })
+      .populate({
+        path: "comments",
+        select: "rating"
+      })
+        .then((farms) => {
+          //console.log("farms response: ", farms);
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(farms);
+        })
+        .catch((err) => next(err));
+    } else if (products && productSearchType === "or" ) {
+      console.log("search with or")
+      Farm.find({
+        $and: [
+          {
+            location: {
+              $near: {
+                $geometry: {
+                  type: "Point",
+                  coordinates: [longitude, latitude],
+                },
+                $minDistance: 0,
+                $maxDistance: distance,
+              },
+            },
+          },
+          { farmstandType: { $in: types }},
+          { products: { $in: products } },
           { seasons: { $all: seasons } },
         ],
       })
@@ -103,6 +151,7 @@ farmRouter
             },
           },
           //{seasons: seasons}
+          { farmstandType: { $in: types }},
           { seasons: { $all: seasons } },
         ],
       })
