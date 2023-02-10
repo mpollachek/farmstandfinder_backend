@@ -5,6 +5,8 @@ const whitelist = [
   "http://localhost:3001",
   "http://192.168.56.1",
   "http://localhost:7080",
+  "https:www.allfarmstands.com",
+  "allfarmstands.com"
 ];
 const corsOptionsDelegate = (req, callback) => {
   let corsOptions;
