@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const fs = require("fs");
 
 /**
  * Module dependencies.
@@ -18,8 +19,9 @@ var credentials = {key: privateKey, cert: certificate};
  */
 
 var port = normalizePort(process.env.PORT || '8080');
+var secPort = normalizePort(process.env.PORT || '8443');
 app.set('port', port);
-app.set('secPort', 8443);
+app.set('secPort', secPort);
 
 /**
  * Create HTTP server.
@@ -37,8 +39,8 @@ httpServer.on('error', onError);
 httpServer.on('listening', onListening);
 
 httpsServer.listen(secPort);
-httpsServer.on('error', onError);
-httpsServer.on('listening', onListening);
+httpsServer.on('error', onErrorHttps);
+httpsServer.on('listening', onListeningHttps);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -89,10 +91,6 @@ function onError(error) {
     ? 'Pipe ' + port
     : 'Port ' + port;
 
-    var httpsBind = typeof secPort === 'string'
-    ? 'Pipe ' + secPort
-    : 'Port ' + secPort;
-
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
@@ -108,6 +106,15 @@ function onError(error) {
   }
 }
 
+function onErrorHttps(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var httpsBind = typeof secPort === 'string'
+  ? 'Pipe ' + secPort
+  : 'Port ' + secPort;
+
 switch (error.code) {
   case 'EACCES':
     console.error(httpsBind + ' requires elevated privileges');
@@ -119,8 +126,8 @@ switch (error.code) {
     break;
   default:
     throw error;
+  }
 }
-
 
 /**
  * Event listener for HTTP server "listening" event.
@@ -135,7 +142,7 @@ function onListening() {
   console.log(`connected to port: ${port}`);
 }
 
-function onListening() {
+function onListeningHttps() {
   var httpsAddr = httpsServer.address();
   var bind = typeof httpsAddr === 'string'
     ? 'pipe ' + httpsAddr
