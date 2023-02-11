@@ -7,6 +7,11 @@
 var app = require('../app');
 var debug = require('debug')('farmstandfinder-backend:server');
 var http = require('http');
+var https = require('https');
+var privateKey  = fs.readFileSync('/etc/letsencrypt/live/allfarmstands.com/privkey.pem'); //Certbot
+var certificate = fs.readFileSync('/etc/letsencrypt/ssl-dhparams.pem'); //Certbot
+
+var credentials = {key: privateKey, cert: certificate};
 
 /**
  * Get port from environment and store in Express.
@@ -14,21 +19,26 @@ var http = require('http');
 
 var port = normalizePort(process.env.PORT || '8080');
 app.set('port', port);
-app.set('secPort', port+443);
+app.set('secPort', 8443);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app)
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+httpServer.listen(port);
+httpServer.on('error', onError);
+httpServer.on('listening', onListening);
+
+httpsServer.listen(secPort);
+httpsServer.on('error', onError);
+httpsServer.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -50,6 +60,22 @@ function normalizePort(val) {
   return false;
 }
 
+function normalizeHttpsPort(val) {
+  var secPort = parseInt(val, 10);
+
+  if (isNaN(secPort)) {
+    // named pipe
+    return val;
+  }
+
+  if (secPort >= 0) {
+    // port number
+    return secPort;
+  }
+
+  return false;
+}
+
 /**
  * Event listener for HTTP server "error" event.
  */
@@ -62,6 +88,10 @@ function onError(error) {
   var bind = typeof port === 'string'
     ? 'Pipe ' + port
     : 'Port ' + port;
+
+    var httpsBind = typeof secPort === 'string'
+    ? 'Pipe ' + secPort
+    : 'Port ' + secPort;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
@@ -78,16 +108,40 @@ function onError(error) {
   }
 }
 
+switch (error.code) {
+  case 'EACCES':
+    console.error(httpsBind + ' requires elevated privileges');
+    process.exit(1);
+    break;
+  case 'EADDRINUSE':
+    console.error(httpsBind + ' is already in use');
+    process.exit(1);
+    break;
+  default:
+    throw error;
+}
+
+
 /**
  * Event listener for HTTP server "listening" event.
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
+  var httpAddr = httpServer.address();
+  var bind = typeof httpAddr === 'string'
+    ? 'pipe ' + httpAddr
+    : 'port ' + httpAddr.port;
   debug('Listening on ' + bind);
   console.log(`connected to port: ${port}`);
 }
+
+function onListening() {
+  var httpsAddr = httpsServer.address();
+  var bind = typeof httpsAddr === 'string'
+    ? 'pipe ' + httpsAddr
+    : 'secPort ' + httpsAddr.secPort;
+  debug('Listening on ' + bind);
+  console.log(`connected to port: ${secPort}`);
+}
+
 
