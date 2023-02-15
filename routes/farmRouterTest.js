@@ -2,14 +2,12 @@ const express = require("express");
 const Farm = require("../models/farmSchema");
 const Comment = require("../models/commentSchema");
 const OwnerComment = require("../models/ownerCommentSchema");
+const Values = require("../models/valuesSchema");
 const User = require("../models/user");
 const authenticate = require("../authenticate");
 const cors = require("./cors");
 const path = require("path");
 const fs = require("fs");
-
-//to do: set image save folder to mongodb id (one folder per farmstand)
-// save file path to mongodb
 
 const dir = "./public/images";
 const tempPath = `${dir}/temp`;
@@ -32,6 +30,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const farmRouter = express.Router();
+
+const productValuesId = '63eaac52da8de6ad2fb3ca2c';
 
 /* All Farmstands */
 farmRouter
@@ -208,6 +208,35 @@ farmRouter
     if (indexType !== -1) {
       typeArray.splice(indexType, 1);
     }
+
+    //add products to values collection productvalues document
+    const addProdValuesArray = [];
+    if (productsArray) {
+      // add each product value to values collection
+      Values.findById(productValuesId)
+      .then((productValues) => {
+        console.log("productValues.values: ", productValues.values)
+        for (i of productsArray) {
+          console.log("i", i)
+          if (i) {
+            if (productValues.values.includes(i)) {
+              continue;
+            } else {
+            addProdValuesArray.push(i)
+          }
+      }}})
+      .then(() => {      
+      console.log("addProdValuesArray: ", addProdValuesArray)
+      Values.findByIdAndUpdate(productValuesId, {
+        $push: {values: addProdValuesArray}
+      }, { upsert: true })
+      .then((valuesCollection) => {
+        console.log("valuesCollection", valuesCollection)
+      })
+    })
+    }
+    //end add products to values collection productvalues document
+
     Farm.create({
       farmstandName: req.body.farmstandName,
       location: {
@@ -226,11 +255,11 @@ farmRouter
       images: imageNames,
     })
       .then(async (farm) => {
-        console.log("Farmstand Created ", farm);
+        //console.log("Farmstand Created ", farm);
         const farmId = farm._id;
         const farmPath = `${dir}/${farmId}`;
-        console.log("farmId: ", farmId);
-        console.log("farmPath: ", farmPath);
+        //console.log("farmId: ", farmId);
+        //console.log("farmPath: ", farmPath);
         //   {_id: farmId},
 
         //   {
@@ -241,12 +270,12 @@ farmRouter
         // console.log('farm image directory: ', farm.image.directory);
         // console.log('Farmstand Created ', farm);
         //const imageDir = path.normalize(dir, farmId);
-        console.log("farm.images: " + farm.images);
+        //console.log("farm.images: " + farm.images);
         if (!fs.existsSync(farmPath)) {
           fs.mkdirSync(farmPath);
         }
         for (item of farm.images) {
-          console.log("item " + item);
+          //console.log("item " + item);
           fs.rename(
             `${tempPath}/${item}`,
             `${farmPath}/${item}`,
@@ -378,6 +407,25 @@ farmRouter
     res.setHeader("Content-Type", "application/json");
     res.json(idImages).catch((err) => next(err));
   });
+
+  /* Get all products for filtering farmstands */
+farmRouter
+.route("/getallproducts")
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.cors, (req, res, next) => {
+  console.log("test allproducts get")
+  console.log("req.body: ", req.body);
+  Values.findById(productValuesId) 
+    .then( (productValues) => {
+      console.log("product values: ", productValues);
+      const allProductValues = productValues.values
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/json");
+      res.json(allProductValues);
+    })
+    .catch((err) => console.log(err));
+});
+/* Get all products for filtering farmstands */
 
 /* Each Farmstand by ID */
 farmRouter
@@ -530,7 +578,7 @@ farmRouter
   )
   /* End Allow anyone to add more images to farmstand */
 
-  /* Allow anyone to add products to farmstand */
+  /* End Allow anyone to add products to farmstand */
 farmRouter
   .route("/:farmstandId/addproducts")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
@@ -545,6 +593,34 @@ farmRouter
         }
       }
       console.log("productNames after for loop push: ", productNames)
+
+     //add products to values collection productvalues document
+     const addProdValuesArray = [];
+     if (productNames) {
+       // add each product value to values collection
+       Values.findById(productValuesId)
+       .then( (productValues) => {
+         console.log("productValues.values: ", productValues.values)
+         for (i of productNames) {
+           console.log("i", i)
+           if (productValues.values.includes(i)) {
+             continue;
+           } else {
+            addProdValuesArray.push(i)
+           }
+       }})
+       .then(() => {     
+       console.log("addProdValuesArray: ", addProdValuesArray)
+       Values.findByIdAndUpdate(productValuesId, {
+         $push: {values: addProdValuesArray}
+       }, { upsert: true })
+       .then((valuesCollection) => {
+         console.log("valuesCollection", valuesCollection)
+       })
+     })
+     }
+     //end add products to values collection productvalues document
+
     Farm.findByIdAndUpdate(req.params.farmstandId, {
       $push: { products: { $each: productNames } }
       //$push: {products: productNames}
@@ -564,12 +640,56 @@ farmRouter
 .route("/:farmstandId/editproducts")
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .put( cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+  console.log("req: ", req.body)
   const farmstandId = req.params.farmstandId
   const userId = req.user._id
-  console.log("req: ", req.body)
+  const products = req.body.products;
+  const newProducts = req.body.newProducts;
+  for (newProduct of newProducts) {
+    if (newProduct && !products.includes(newProduct)) {
+    products.push(newProduct)
+    //console.log("products ", products)
+    }
+  }
+  const productNames = [];
+      if (products) {
+        for (product of products) {
+          if (product && !productNames.includes(product)) {
+          productNames.push(product)
+          //console.log("productNames ", productNames)
+          }
+        }
+      }
+
+  const addProdValuesArray = [];
+    if (productNames) {
+      // add each product value to values collection
+      // Do not remove value from values collection
+      Values.findById(productValuesId)
+      .then( (productValues) => {
+        //console.log("productValues.values: ", productValues.values)
+        for (i of productNames) {
+          //console.log("i", i)
+          if (productValues.values.includes(i)) {
+            continue;
+          } else {
+           addProdValuesArray.push(i)
+          }
+      }})
+      .then(() => {     
+      console.log("addProdValuesArray: ", addProdValuesArray)
+      Values.findByIdAndUpdate(productValuesId, {
+        $push: {values: addProdValuesArray}
+      }, { upsert: true })
+      .then((valuesCollection) => {
+        console.log("valuesCollection", valuesCollection)
+      })
+    })
+    }
+    //end add products to values collection productvalues document
   
   Farm.findByIdAndUpdate(farmstandId, {
-    $set: { products: req.body.products }
+    $set: { products: productNames }
 
     // $cond: [owner.includes(userId), {$set: { products: req.body.products }}, res.end("failed to update products")]
 

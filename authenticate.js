@@ -5,8 +5,11 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 const FacebookTokenStrategy = require('passport-facebook-token');
+const fs = require('fs');
 
 const config = require('./config.js');
+jwtSecret = fs.readFileSync('./jwtSecret.pem');
+jwtPublic = fs.readFileSync('./jwtPublic.pem')
 
 exports.local = passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
@@ -20,9 +23,15 @@ exports.getToken = function(user) {
   return jwt.sign(user, config.secretKey, {});
 };
 
+// exports.getToken = function(user) {
+//   return jwt.sign(user, jwtSecret, {algorithm: 'RS256'});
+// };
+
 const opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = config.secretKey;
+//opts.secretOrKey = jwtSecret
+
 
 exports.jwtPassport = passport.use(
   new JwtStrategy(

@@ -7,10 +7,11 @@ const fs = require("fs");
 
 var app = require('../app');
 var debug = require('debug')('farmstandfinder-backend:server');
-var http = require('http');
+var http = require('node:http');
 var https = require('https');
-var privateKey  = fs.readFileSync('/etc/letsencrypt/live/allfarmstands.com/privkey.pem'); //Certbot
-var certificate = fs.readFileSync('/etc/letsencrypt/ssl-dhparams.pem'); //Certbot
+var privateKey  = fs.readFileSync('cert/CA/localhost/localhost.decrypted.key'); 
+//https://www.section.io/engineering-education/how-to-get-ssl-https-for-localhost/
+var certificate = fs.readFileSync('cert/CA/localhost/localhost.crt'); 
 
 var credentials = {key: privateKey, cert: certificate};
 
@@ -19,7 +20,7 @@ var credentials = {key: privateKey, cert: certificate};
  */
 
 var port = normalizePort(process.env.PORT || '8080');
-var secPort = normalizePort(process.env.PORT || '8443');
+var secPort = normalizeHttpsPort(process.env.SECPORT || '8443');
 app.set('port', port);
 app.set('secPort', secPort);
 
@@ -139,16 +140,16 @@ function onListening() {
     ? 'pipe ' + httpAddr
     : 'port ' + httpAddr.port;
   debug('Listening on ' + bind);
-  console.log(`connected to port: ${port}`);
+  console.log(`connected to http port: ${port}`);
 }
 
 function onListeningHttps() {
   var httpsAddr = httpsServer.address();
-  var bind = typeof httpsAddr === 'string'
+  var httpsBind = typeof httpsAddr === 'string'
     ? 'pipe ' + httpsAddr
     : 'secPort ' + httpsAddr.secPort;
-  debug('Listening on ' + bind);
-  console.log(`connected to port: ${secPort}`);
+  debug('Listening on ' + httpsBind);
+  console.log(`connected to https port: ${secPort}`);
 }
 
 
