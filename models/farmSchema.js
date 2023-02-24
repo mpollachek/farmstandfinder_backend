@@ -63,6 +63,91 @@ const farmSchema = new Schema(
       required: true,
       enum: ["produce", "meat", "dairy", "eggs", "farmersMarket", "gardenCenter", "playArea", "therapy"]
     },
+    useHours: Boolean,
+    hours: {
+      open: {
+        sun: {
+          isOpen: Boolean,
+          hour: { type: String, enum: ['1','2','3','4','5','6','7','8','9','10','11','12', 'hour']},
+          min: { type: String, enum: ['00','15','30','45', 'minutes']},
+          ampm: { type: String, enum: ["am", "pm"]}
+        },
+        mon: {
+          isOpen: Boolean,
+          hour: { type: String, enum: ['1','2','3','4','5','6','7','8','9','10','11','12', 'hour']},
+          min: { type: String, enum: ['00','15','30','45', 'minutes']},
+          ampm: { type: String, enum: ["am", "pm"]}
+        },
+        tue: {
+          isOpen: Boolean,
+          hour: { type: String, enum: ['1','2','3','4','5','6','7','8','9','10','11','12', 'hour']},
+          min: { type: String, enum: ['00','15','30','45', 'minutes']},
+          ampm: { type: String, enum: ["am", "pm"]}
+        },
+        wed: {
+          isOpen: Boolean,
+          hour: { type: String, enum: ['1','2','3','4','5','6','7','8','9','10','11','12', 'hour']},
+          min: { type: String, enum: ['00','15','30','45', 'minutes']},
+          ampm: { type: String, enum: ["am", "pm"]}
+        },
+        thur: {
+          isOpen: Boolean,
+          hour: { type: String, enum: ['1','2','3','4','5','6','7','8','9','10','11','12', 'hour']},
+          min: { type: String, enum: ['00','15','30','45', 'minutes']},
+          ampm: { type: String, enum: ["am", "pm"]}
+        },
+        fri: {
+          isOpen: Boolean,
+          hour: { type: String, enum: ['1','2','3','4','5','6','7','8','9','10','11','12', 'hour']},
+          min: { type: String, enum: ['00','15','30','45', 'minutes']},
+          ampm: { type: String, enum: ["am", "pm"]}
+        },
+        sat: {
+          isOpen: Boolean,
+          hour: { type: String, enum: ['1','2','3','4','5','6','7','8','9','10','11','12', 'hour']},
+          min: { type: String, enum: ['00','15','30','45', 'minutes']},
+          ampm: { type: String, enum: ["am", "pm"]}
+        },
+      },
+      close: {
+        sun: {
+          hour: { type: String, enum: ['1','2','3','4','5','6','7','8','9','10','11','12', 'hour']},
+          min: { type: String, enum: ['00','15','30','45', 'minutes']},
+          ampm: { type: String, enum: ["am", "pm"]}
+        },
+        mon: {
+          hour: { type: String, enum: ['1','2','3','4','5','6','7','8','9','10','11','12', 'hour']},
+          min: { type: String, enum: ['00','15','30','45', 'minutes']},
+          ampm: { type: String, enum: ["am", "pm"]}
+        },
+        tue: {
+          hour: { type: String, enum: ['1','2','3','4','5','6','7','8','9','10','11','12', 'hour']},
+          min: { type: String, enum: ['00','15','30','45', 'minutes']},
+          ampm: { type: String, enum: ["am", "pm"]}
+        },
+        wed: {
+          hour: { type: String, enum: ['1','2','3','4','5','6','7','8','9','10','11','12', 'hour']},
+          min: { type: String, enum: ['00','15','30','45', 'minutes']},
+          ampm: { type: String, enum: ["am", "pm"]}
+        },
+        thur: {
+          hour: { type: String, enum: ['1','2','3','4','5','6','7','8','9','10','11','12', 'hour']},
+          min: { type: String, enum: ['00','15','30','45', 'minutes']},
+          ampm: { type: String, enum: ["am", "pm"]}
+        },
+        fri: {
+          hour: { type: String, enum: ['1','2','3','4','5','6','7','8','9','10','11','12', 'hour']},
+          min: { type: String, enum: ['00','15','30','45', 'minutes']},
+          ampm: { type: String, enum: ["am", "pm"]}
+        },
+        sat: {
+          hour: { type: String, enum: ['1','2','3','4','5','6','7','8','9','10','11','12', 'hour']},
+          min: { type: String, enum: ['00','15','30','45', 'minutes']},
+          ampm: { type: String, enum: ["am", "pm"]}
+        },
+      },
+      required: false
+    },
     comments: [
       {
         type: Schema.Types.ObjectId,

@@ -5,3 +5,4 @@ config.js
 public/images
 
 *.pem
+*.key

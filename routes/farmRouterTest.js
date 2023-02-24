@@ -11,10 +11,10 @@ const fs = require("fs");
 
 const dir = "./public/images";
 const tempPath = `${dir}/temp`;
-console.log("path.join dir + temp: " + path.normalize(dir, "temp"));
-console.log(
-  "'./' + path.join dir + temp: " + "./" + path.normalize(dir, "temp")
-);
+// console.log("path.join dir + temp: " + path.normalize(dir, "temp"));
+// console.log(
+//  "'./' + path.join dir + temp: " + "./" + path.normalize(dir, "temp")
+// );
 
 const multer = require("multer");
 const storage = multer.diskStorage({
@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
     cb(null, tempPath);
   },
   filename: (req, file, cb) => {
-    console.log(file);
+    // console.log(file);
     cb(null, Date.now() + path.extname(file.originalname));
   },
 });
@@ -38,15 +38,15 @@ farmRouter
   .route("/")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
   .get(cors.cors, (req, res, next) => {
-    console.log("req.body: ", req.body)
-    console.log("long: ", req.query.longitude);
-    console.log("lat: ", req.query.latitude);
-    console.log("distance: ", req.query.distance);
-    console.log("products: ", req.query.products);
-    console.log("farmstandTypes: ", req.query.farmstandType)
-    console.log("seasons: ", req.query.seasons);
-    console.log("typeof seasons: ", typeof req.query.seasons);
-    console.log("req.query.productSearchType: ", req.query.productSearchType)
+    // console.log("req.body: ", req.body)
+    // console.log("long: ", req.query.longitude);
+    // console.log("lat: ", req.query.latitude);
+    // console.log("distance: ", req.query.distance);
+    // console.log("products: ", req.query.products);
+    // console.log("farmstandTypes: ", req.query.farmstandType)
+    // console.log("seasons: ", req.query.seasons);
+    // console.log("typeof seasons: ", typeof req.query.seasons);
+    // console.log("req.query.productSearchType: ", req.query.productSearchType)
     const longitude = req.query.longitude;
     const latitude = req.query.latitude;
     const distance = req.query.distance;
@@ -60,7 +60,7 @@ farmRouter
     } else {
       seasons.push("yearRoundQuery");
     }
-    console.log("seasons array: ", seasons);
+    // console.log("seasons array: ", seasons);
     let types = [];
     if (postedTypes) {
       for (const i of postedTypes) {
@@ -69,10 +69,10 @@ farmRouter
     } else {
       types.push("produce", "meat", "dairy", "eggs", "farmersMarket", "gardenCenter", "playArea", "therapy", [])
     }
-    console.log("types: ", types)
+    // console.log("types: ", types)
 
     if (products && productSearchType === "all" ) {
-      console.log("search with all")
+      // console.log("search with all")
       Farm.find({
         $and: [
           {
@@ -180,16 +180,22 @@ farmRouter
     // console.log('seasons array: ', seasons)
     console.log("files: " + JSON.stringify(req.files));
     console.log("req.body: ", req.body);
+    console.log("JSON Parse req.body.hours: ", JSON.parse(req.body.hours))
+    console.log("req.body.hours", req.body.hours)
+    const postedHrs = JSON.parse(req.body.hours);
+    console.log("posted Hrs: ", postedHrs)
+    console.log("postedHrs.hours.open.sun.hour.sunOpenHr", postedHrs.hours.open.sun.hour.sunOpenHr)
+    console.log("JSON parse useHours", JSON.parse(req.body.useHours))
     const imagePaths = [];
     const imageNames = [];
     if (req.files) {
       for (file of req.files) {
-        console.log("1 file: " + JSON.stringify(file));
+        // console.log("1 file: " + JSON.stringify(file));
         imagePaths.push(file.path);
         imageNames.push(file.filename);
       }
-      console.log("imagePaths: " + imagePaths);
-      console.log("imageNames: " + imageNames);
+      // console.log("imagePaths: " + imagePaths);
+      // console.log("imageNames: " + imageNames);
     }
     const seasonsArray = [];
     if (req.body.seasons === "harvest") {
@@ -202,7 +208,7 @@ farmRouter
     if (index !== -1) {
       productsArray.splice(index, 1);
     }
-    console.log('productsArray: ', productsArray)
+    // console.log('productsArray: ', productsArray)
     const typeArray = JSON.parse(req.body.farmstandType)
     const indexType = typeArray.indexOf("");
     if (indexType !== -1) {
@@ -215,9 +221,9 @@ farmRouter
       // add each product value to values collection
       Values.findById(productValuesId)
       .then((productValues) => {
-        console.log("productValues.values: ", productValues.values)
+        // console.log("productValues.values: ", productValues.values)
         for (i of productsArray) {
-          console.log("i", i)
+          // console.log("i", i)
           if (i) {
             if (productValues.values.includes(i)) {
               continue;
@@ -226,17 +232,17 @@ farmRouter
           }
       }}})
       .then(() => {      
-      console.log("addProdValuesArray: ", addProdValuesArray)
+      // console.log("addProdValuesArray: ", addProdValuesArray)
       Values.findByIdAndUpdate(productValuesId, {
         $push: {values: addProdValuesArray}
       }, { upsert: true })
       .then((valuesCollection) => {
-        console.log("valuesCollection", valuesCollection)
+        // console.log("valuesCollection", valuesCollection)
       })
     })
     }
     //end add products to values collection productvalues document
-
+    console.log("postedHrs.hours.close.sun.min.sunCloseMin", postedHrs.hours.close.sun.ampm.sunCloseAmPm)
     Farm.create({
       farmstandName: req.body.farmstandName,
       location: {
@@ -253,6 +259,27 @@ farmRouter
       farmstandType: typeArray,
       seasons: seasonsArray,
       images: imageNames,
+      useHours: JSON.parse(req.body.useHours),
+      hours: {
+        open: {
+          sun: {hour: postedHrs.hours.open.sun.hour.sunOpenHr, min: postedHrs.hours.open.sun.min.sunOpenMin, ampm: postedHrs.hours.open.sun.ampm.sunOpenAmPm },        
+          mon: {hour: postedHrs.hours.open.mon.hour.monOpenHr, min: postedHrs.hours.open.mon.min.monOpenMin, ampm: postedHrs.hours.open.mon.ampm.monOpenAmPm },
+         tue: {hour: postedHrs.hours.open.tue.hour.tuesOpenHr, min: postedHrs.hours.open.tue.min.tuesOpenMin, ampm: postedHrs.hours.open.tue.ampm.tuesOpenAmPm },        
+         wed: {hour: postedHrs.hours.open.wed.hour.wedOpenHr, min: postedHrs.hours.open.wed.min.wedOpenMin, ampm: postedHrs.hours.open.wed.ampm.wedOpenAmPm },
+         thur: {hour: postedHrs.hours.open.thur.hour.thurOpenHr, min: postedHrs.hours.open.thur.min.thurOpenMin, ampm: postedHrs.hours.open.thur.ampm.thurOpenAmPm },        
+          fri: {hour: postedHrs.hours.open.fri.hour.friOpenHr, min: postedHrs.hours.open.fri.min.friOpenMin, ampm: postedHrs.hours.open.fri.ampm.friOpenAmPm },
+          sat: {hour: postedHrs.hours.open.sat.hour.satOpenHr, min: postedHrs.hours.open.sat.min.satOpenMin, ampm: postedHrs.hours.open.sat.ampm.satOpenAmPm },        
+         },
+        close: {
+          sun: {hour: postedHrs.hours.close.sun.hour.sunCloseHr, min: postedHrs.hours.close.sun.min.sunCloseMin, ampm: postedHrs.hours.close.sun.ampm.sunCloseAmPm },        
+          mon: {hour: postedHrs.hours.close.mon.hour.monCloseHr, min: postedHrs.hours.close.mon.min.monCloseMin, ampm: postedHrs.hours.close.mon.ampm.monCloseAmPm },
+          tue: {hour: postedHrs.hours.close.tue.hour.tuesCloseHr, min: postedHrs.hours.close.tue.min.tuesCloseMin, ampm: postedHrs.hours.close.tue.ampm.tuesCloseAmPm },        
+          wed: {hour: postedHrs.hours.close.wed.hour.wedCloseHr, min: postedHrs.hours.close.wed.min.wedCloseMin, ampm: postedHrs.hours.close.wed.ampm.wedCloseAmPm },
+          thur: {hour: postedHrs.hours.close.thur.hour.thurCloseHr, min: postedHrs.hours.close.thur.min.thurCloseMin, ampm: postedHrs.hours.close.thur.ampm.thurCloseAmPm },        
+          fri: {hour: postedHrs.hours.close.fri.hour.friCloseHr, min: postedHrs.hours.close.fri.min.friCloseMin, ampm: postedHrs.hours.close.fri.ampm.friCloseAmPm },
+          sat: {hour: postedHrs.hours.close.sat.hour.satCloseHr, min: postedHrs.hours.close.sat.min.satCloseMin, ampm: postedHrs.hours.close.sat.ampm.satCloseAmPm },
+          },
+        },
     })
       .then(async (farm) => {
         //console.log("Farmstand Created ", farm);
@@ -319,13 +346,13 @@ farmRouter
   .route("/cardImage")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
   .get(cors.cors, (req, res, next) => {
-    console.log("req.query: ", req.query);
-    console.log("req id array: ", req.query.id);
+    // console.log("req.query: ", req.query);
+    // console.log("req id array: ", req.query.id);
     Farm.find({
       _id: req.query.id,
     })
       .then((cardImage) => {
-        console.log("cardImage: ", cardImage[0].images[0]);
+        // console.log("cardImage: ", cardImage[0].images[0]);
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/json");
         res.json(cardImage[0].images[0]);
@@ -338,21 +365,21 @@ farmRouter
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
   .get(cors.cors, (req, res, next) => {
     const idImages = {};
-    console.log("req.query: ", req.query);
-    console.log("req id array: ", req.query.id);
+    // console.log("req.query: ", req.query);
+    // console.log("req id array: ", req.query.id);
     for (const id of req.query.id) {
-      console.log("each id: ", id);
+      // console.log("each id: ", id);
       tempArray = [];
       let filenames = fs.readdirSync(`${dir}/${id}`);
-      console.log("filenames: ", filenames);
+      // console.log("filenames: ", filenames);
       if (filenames.length) {
         filenames.forEach((file) => {
-          console.log("file: ", file);
+          // console.log("file: ", file);
           tempArray.push(file);
-          console.log("tempArray: ", tempArray);
+          // console.log("tempArray: ", tempArray);
         });
         idImages[`${id}`] = tempArray;
-        console.log("id array: ", idImages);
+        // console.log("id array: ", idImages);
       }
     }
     res.statusCode = 200;
@@ -394,13 +421,13 @@ farmRouter
   .route("test")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
   .get(cors.cors, (req, res, next) => {
-    console.log("req.query: ", req.query);
-    console.log("req id array: ", req.query.id);
+    // console.log("req.query: ", req.query);
+    // console.log("req id array: ", req.query.id);
     fs.readdir(`${dir}/${id}`, (err, filenames) => {
       if (err) {
-        console.log(err);
+        // console.log(err);
       } else {
-        console.log("filenames: ", filenames);
+        // console.log("filenames: ", filenames);
       }
     });
     res.statusCode = 200;
@@ -413,11 +440,11 @@ farmRouter
 .route("/getallproducts")
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get(cors.cors, (req, res, next) => {
-  console.log("test allproducts get")
-  console.log("req.body: ", req.body);
+  // console.log("test allproducts get")
+  // console.log("req.body: ", req.body);
   Values.findById(productValuesId) 
     .then( (productValues) => {
-      console.log("product values: ", productValues);
+      // console.log("product values: ", productValues);
       const allProductValues = productValues.values
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
@@ -432,7 +459,7 @@ farmRouter
   .route("/:farmstandId")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
   .get(cors.cors, async (req, res, next) => {
-    console.log("test /farmstandId")
+    // console.log("test /farmstandId")
     const farm = Farm.findById(req.params.farmstandId)
     const populatedArray = await farm.populate([{
       path: "comments",
@@ -528,17 +555,17 @@ farmRouter
   .put(
     cors.corsWithOptions, upload.array("image", 12),
     /*authenticate.verifyUser, authenticate.verifyAdmin,*/ (req, res, next) => {
-      console.log("farmstandId: " + req.params.farmstandId);
-      console.log('req.body: ', req.body)
-      console.log("files: " + JSON.stringify(req.files));
+      // console.log("farmstandId: " + req.params.farmstandId);
+      // console.log('req.body: ', req.body)
+      // console.log("files: " + JSON.stringify(req.files));
       const farmId = req.params.farmstandId;
       const imageNames = [];
       if (req.files) {
         for (file of req.files) {
-          console.log("filename: ", file.filename)
+          // console.log("filename: ", file.filename)
         imageNames.push(file.filename);
       }}
-      console.log("imageNames", imageNames)
+      // console.log("imageNames", imageNames)
       Farm.findByIdAndUpdate(
         req.params.farmstandId,
         {
@@ -549,22 +576,22 @@ farmRouter
       )
         .then(async (farm) => {
           const farmPath = `${dir}/${farmId}`;
-          console.log("farm.images: " + farm.images);
-          console.log("image Names 2: ", imageNames)
+          // console.log("farm.images: " + farm.images);
+          // console.log("image Names 2: ", imageNames)
         if (!fs.existsSync(farmPath)) {
           await fs.mkdirSync(farmPath);
         }
         for (item of imageNames) {
-          console.log("item " + item);
-          console.log("temp path: ", `${tempPath}/${item}`)
-          console.log("farm path: ", `${farmPath}/${item}`)
+          // console.log("item " + item);
+          // console.log("temp path: ", `${tempPath}/${item}`)
+          // console.log("farm path: ", `${farmPath}/${item}`)
           if (fs.existsSync(`${tempPath}/${item}`)) {
           await fs.rename(
             `${tempPath}/${item}`,
             `${farmPath}/${item}`,
             function (err) {
               if (err) {
-                console.log("file move error: " + err);
+                // console.log("file move error: " + err);
               }
             }
           );
@@ -583,7 +610,7 @@ farmRouter
   .route("/:farmstandId/addproducts")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
   .put( cors.corsWithOptions, (req, res, next) => {
-    console.log("req: ", req.body)
+    // console.log("req: ", req.body)
     const productNames = [];
       if (req.body.products) {
         for (product of req.body.products) {
@@ -592,7 +619,7 @@ farmRouter
           }
         }
       }
-      console.log("productNames after for loop push: ", productNames)
+      // console.log("productNames after for loop push: ", productNames)
 
      //add products to values collection productvalues document
      const addProdValuesArray = [];
@@ -600,9 +627,9 @@ farmRouter
        // add each product value to values collection
        Values.findById(productValuesId)
        .then( (productValues) => {
-         console.log("productValues.values: ", productValues.values)
+         // console.log("productValues.values: ", productValues.values)
          for (i of productNames) {
-           console.log("i", i)
+           // console.log("i", i)
            if (productValues.values.includes(i)) {
              continue;
            } else {
@@ -610,12 +637,12 @@ farmRouter
            }
        }})
        .then(() => {     
-       console.log("addProdValuesArray: ", addProdValuesArray)
+       // console.log("addProdValuesArray: ", addProdValuesArray)
        Values.findByIdAndUpdate(productValuesId, {
          $push: {values: addProdValuesArray}
        }, { upsert: true })
        .then((valuesCollection) => {
-         console.log("valuesCollection", valuesCollection)
+         // console.log("valuesCollection", valuesCollection)
        })
      })
      }
@@ -626,7 +653,7 @@ farmRouter
       //$push: {products: productNames}
     })
     .then((response) => {
-      console.log("response of products: ", response.products)
+      // console.log("response of products: ", response.products)
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
       res.json(response);
@@ -640,7 +667,7 @@ farmRouter
 .route("/:farmstandId/editproducts")
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .put( cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-  console.log("req: ", req.body)
+  // console.log("req: ", req.body)
   const farmstandId = req.params.farmstandId
   const userId = req.user._id
   const products = req.body.products;
@@ -677,12 +704,12 @@ farmRouter
           }
       }})
       .then(() => {     
-      console.log("addProdValuesArray: ", addProdValuesArray)
+      // console.log("addProdValuesArray: ", addProdValuesArray)
       Values.findByIdAndUpdate(productValuesId, {
         $push: {values: addProdValuesArray}
       }, { upsert: true })
       .then((valuesCollection) => {
-        console.log("valuesCollection", valuesCollection)
+        // console.log("valuesCollection", valuesCollection)
       })
     })
     }
@@ -698,7 +725,7 @@ farmRouter
   // }, else: res.end("failed to update products") } 
   })
   .then((response) => {
-    console.log("response of products: ", response.products)
+    // console.log("response of products: ", response.products)
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     res.json(response);
@@ -712,15 +739,15 @@ farmRouter
 .route("/:farmstandId/removeimage")
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .put( cors.corsWithOptions, authenticate.verifyUser, async (req, res, next) => {
-  console.log("req: ", req.body)
+  // console.log("req: ", req.body)
   const farmstandId = req.params.farmstandId
   const userId = req.user._id
   const image = req.body.image
   const imagePath = `${dir}/${farmstandId}/${image}`
-  console.log("imagePath: ", imagePath)
+  // console.log("imagePath: ", imagePath)
   try {
     fs.unlinkSync(`${imagePath}`)
-    console.log(`image ${image} removed from ${imagePath}`)
+    // console.log(`image ${image} removed from ${imagePath}`)
   } catch(err) {
     console.error(err)
   }  
@@ -728,7 +755,7 @@ farmRouter
     $pull: { images: image }
   }, { new: true })
   .then((response) => {
-    console.log("response of remove image: ", response.images)
+    // console.log("response of remove image: ", response.images)
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     res.json(response);
@@ -788,8 +815,8 @@ farmRouter
       // Farm.findById(req.params.farmstandId)
       const farmId = req.params.farmstandId;
       const userId = req.body.author;
-      console.log("req: ", req.body);
-      console.log("farmstandId: ", `${req.params.farmstandId}`);
+      // console.log("req: ", req.body);
+      // console.log("farmstandId: ", `${req.params.farmstandId}`);
       // Comment.create({
       //   text: req.body.text,
       //   author: req.body.author,
@@ -802,14 +829,14 @@ farmRouter
         rating: Number(req.body.rating),
         farmstandId: farmId,
       });
-      console.log("comment: ", comment);
+      // console.log("comment: ", comment);
       await comment.save(function (err) {
         if (err) {
           console.log("error: ", err);
         }
       });
       const farmRelated = await Farm.findById(farmId);
-      console.log("farmRelated: ", farmRelated);
+      // console.log("farmRelated: ", farmRelated);
       farmRelated.comments.splice(0, 0, comment);
       await farmRelated.save(function (err) {
         if (err) {
@@ -894,7 +921,7 @@ farmRouter
     );
   })
   .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-    console.log("req.body: ", req.body)
+    // console.log("req.body: ", req.body)
     const farmstandId = req.params.farmstandId
     const commentId = req.params.commentId
     Comment.findByIdAndUpdate(commentId, {
@@ -913,7 +940,7 @@ farmRouter
         })
       })
       .then((response) => {
-        console.log("response of owner comment put: ", response)
+        // console.log("response of owner comment put: ", response)
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/json");
         res.json(response);
@@ -925,18 +952,18 @@ farmRouter
       const farmstandId = req.params.farmstandId
       const commentId = req.params.commentId
       const userId = req.user._id
-      console.log("req.body: ", req.body)
+      // console.log("req.body: ", req.body)
   
           const removeFarm = await Farm.findByIdAndUpdate(farmstandId, {
             $pull: {comments: commentId}
           }, { new: true })
-          console.log("removeFarm: ", removeFarm.comments)
+          // console.log("removeFarm: ", removeFarm.comments)
           const removeUser = await User.findByIdAndUpdate(userId, {
             $pull: {comments: commentId}
           }, { new: true })
-          console.log("removeUser: ", removeUser.comments)
+          // console.log("removeUser: ", removeUser.comments)
           const removeComment = await Comment.findByIdAndDelete(commentId)
-          console.log("removeComment: ", removeComment)
+          // console.log("removeComment: ", removeComment)
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
           res.json(removeComment);
@@ -962,7 +989,7 @@ farmRouter
         },
       })
       .then((farmstand) => {
-        console.log("comments res ", farmstand.ownercomments)
+        // console.log("comments res ", farmstand.ownercomments)
         if (farmstand) {
           let commentsArray = farmstand.ownercomments.map((comment) => {
             return {
@@ -975,7 +1002,7 @@ farmRouter
               updated: comment.updatedAt,
             };
           });
-          console.log("commentsArray ", commentsArray)
+          // console.log("commentsArray ", commentsArray)
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
           res.json(commentsArray);
@@ -994,14 +1021,14 @@ farmRouter
       const farmId = req.params.farmstandId;
       const userId = req.body.author;
       //console.log("req: ", req.body);
-      console.log("farmstandId: ", `${req.params.farmstandId}`);
+      // console.log("farmstandId: ", `${req.params.farmstandId}`);
       // user populate owner ids must include farmId
       const comment = new OwnerComment({
         text: req.body.text,
         author: userId,
         farmstandId: farmId,
       });
-      console.log("comment: ", comment);
+      // console.log("comment: ", comment);
       await comment.save(function (err) {
         if (err) {
           console.log("error: ", err);
@@ -1058,7 +1085,7 @@ farmRouter
     );
   })
   .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-    console.log("req.body: ", req.body)
+    // console.log("req.body: ", req.body)
     const farmstandId = req.params.farmstandId
     const commentId = req.params.commentId
     OwnerComment.findByIdAndUpdate(commentId, {
@@ -1078,7 +1105,7 @@ farmRouter
       })
       //console.log("farmRelated: ", farmRelated);
       .then((response) => {
-        console.log("response of owner comment put: ", response)
+        // console.log("response of owner comment put: ", response)
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/json");
         res.json(response);
@@ -1090,18 +1117,18 @@ farmRouter
     const farmstandId = req.params.farmstandId
     const commentId = req.params.commentId
     const userId = req.user._id
-    console.log("req.body: ", req.body)
+    // console.log("req.body: ", req.body)
 
         const removeFarm = await Farm.findByIdAndUpdate(farmstandId, {
           $pull: {ownercomments: commentId}
         }, { new: true })
-        console.log("removeFarm: ", removeFarm.ownercomments)
+        // console.log("removeFarm: ", removeFarm.ownercomments)
         const removeUser = await User.findByIdAndUpdate(userId, {
           $pull: {ownercomments: commentId}
         }, { new: true })
-        console.log("removeUser: ", removeUser.ownercomments)
+        // console.log("removeUser: ", removeUser.ownercomments)
         const removeComment = await OwnerComment.findByIdAndDelete(commentId)
-        console.log("removeComment: ", removeComment)
+        // console.log("removeComment: ", removeComment)
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/json");
         res.json(removeComment);
