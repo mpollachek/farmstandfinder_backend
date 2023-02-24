@@ -262,13 +262,47 @@ farmRouter
       useHours: JSON.parse(req.body.useHours),
       hours: {
         open: {
-          sun: {hour: postedHrs.hours.open.sun.hour.sunOpenHr, min: postedHrs.hours.open.sun.min.sunOpenMin, ampm: postedHrs.hours.open.sun.ampm.sunOpenAmPm },        
-          mon: {hour: postedHrs.hours.open.mon.hour.monOpenHr, min: postedHrs.hours.open.mon.min.monOpenMin, ampm: postedHrs.hours.open.mon.ampm.monOpenAmPm },
-         tue: {hour: postedHrs.hours.open.tue.hour.tuesOpenHr, min: postedHrs.hours.open.tue.min.tuesOpenMin, ampm: postedHrs.hours.open.tue.ampm.tuesOpenAmPm },        
-         wed: {hour: postedHrs.hours.open.wed.hour.wedOpenHr, min: postedHrs.hours.open.wed.min.wedOpenMin, ampm: postedHrs.hours.open.wed.ampm.wedOpenAmPm },
-         thur: {hour: postedHrs.hours.open.thur.hour.thurOpenHr, min: postedHrs.hours.open.thur.min.thurOpenMin, ampm: postedHrs.hours.open.thur.ampm.thurOpenAmPm },        
-          fri: {hour: postedHrs.hours.open.fri.hour.friOpenHr, min: postedHrs.hours.open.fri.min.friOpenMin, ampm: postedHrs.hours.open.fri.ampm.friOpenAmPm },
-          sat: {hour: postedHrs.hours.open.sat.hour.satOpenHr, min: postedHrs.hours.open.sat.min.satOpenMin, ampm: postedHrs.hours.open.sat.ampm.satOpenAmPm },        
+          sun: {
+            isOpen: JSON.parse(postedHrs.hours.open.sun.isOpen.isOpenSun), hour: postedHrs.hours.open.sun.hour.sunOpenHr, 
+            min: postedHrs.hours.open.sun.min.sunOpenMin, 
+            ampm: postedHrs.hours.open.sun.ampm.sunOpenAmPm 
+          },        
+          mon: {
+            isOpen: JSON.parse(postedHrs.hours.open.mon.isOpen.isOpenMon), 
+            hour: postedHrs.hours.open.mon.hour.monOpenHr, 
+            min: postedHrs.hours.open.mon.min.monOpenMin, 
+            ampm: postedHrs.hours.open.mon.ampm.monOpenAmPm 
+          },
+         tue: {
+          isOpen: JSON.parse(postedHrs.hours.open.tue.isOpen.isOpenTues), 
+          hour: postedHrs.hours.open.tue.hour.tuesOpenHr, 
+          min: postedHrs.hours.open.tue.min.tuesOpenMin, 
+          ampm: postedHrs.hours.open.tue.ampm.tuesOpenAmPm 
+        },        
+         wed: {
+          isOpen: JSON.parse(postedHrs.hours.open.wed.isOpen.isOpenWed), 
+          hour: postedHrs.hours.open.wed.hour.wedOpenHr, 
+          min: postedHrs.hours.open.wed.min.wedOpenMin, 
+          ampm: postedHrs.hours.open.wed.ampm.wedOpenAmPm 
+        },
+         thur: {
+          isOpen: JSON.parse(postedHrs.hours.open.thur.isOpen.isOpenThur), 
+          hour: postedHrs.hours.open.thur.hour.thurOpenHr, 
+          min: postedHrs.hours.open.thur.min.thurOpenMin, 
+          ampm: postedHrs.hours.open.thur.ampm.thurOpenAmPm 
+        },        
+          fri: {
+            isOpen: JSON.parse(postedHrs.hours.open.fri.isOpen.isOpenFri), 
+            hour: postedHrs.hours.open.fri.hour.friOpenHr, 
+            min: postedHrs.hours.open.fri.min.friOpenMin, 
+            ampm: postedHrs.hours.open.fri.ampm.friOpenAmPm 
+          },
+          sat: {
+            isOpen: JSON.parse(postedHrs.hours.open.sat.isOpen.isOpenSat), 
+            hour: postedHrs.hours.open.sat.hour.satOpenHr, 
+            min: postedHrs.hours.open.sat.min.satOpenMin, 
+            ampm: postedHrs.hours.open.sat.ampm.satOpenAmPm 
+          },        
          },
         close: {
           sun: {hour: postedHrs.hours.close.sun.hour.sunCloseHr, min: postedHrs.hours.close.sun.min.sunCloseMin, ampm: postedHrs.hours.close.sun.ampm.sunCloseAmPm },        
@@ -523,6 +557,12 @@ farmRouter
   const farmstandId = req.params.farmstandId
   const userId = req.user._id
   console.log("req: ", req.body)
+  //console.log("req.body.values.useHours", req.body.values.useHours)
+  //console.log("req.body.hours", req.body.hours)
+  //console.log("req.body.values.hours", req.body.values.hours)
+  const postedHrs = req.body.hours;
+  console.log("postedHrs: ", postedHrs)
+  console.log("postedHrs.close.mon.min", postedHrs.close.mon.min)
   const seasonsArray = [];
     if (req.body.values.seasons === "harvest") {
       seasonsArray.push("harvest", "yearRoundQuery");
@@ -535,7 +575,90 @@ farmRouter
       farmstandName: req.body.farmstandName,
       description:  req.body.description,
       seasons: seasonsArray,
-      farmstandType: req.body.values.farmstandType
+      farmstandType: req.body.values.farmstandType,
+      useHours: req.body.values.useHours,
+      hours: {
+        open: {
+          sun: {
+            isOpen: postedHrs.open.sun.isOpen, 
+            hour: postedHrs.open.sun.hour, 
+            min: postedHrs.open.sun.min, 
+            ampm: postedHrs.open.sun.ampm 
+          },        
+          mon: {
+            isOpen: postedHrs.open.mon.isOpen, 
+            hour: postedHrs.open.mon.hour, 
+            min: postedHrs.open.mon.min, 
+            ampm: postedHrs.open.mon.ampm
+          },
+         tue: {
+          isOpen: postedHrs.open.tue.isOpen, 
+          hour: postedHrs.open.tue.hour, 
+          min: postedHrs.open.tue.min, 
+          ampm: postedHrs.open.tue.ampm 
+        },        
+         wed: {
+          isOpen: postedHrs.open.wed.isOpen, 
+          hour: postedHrs.open.wed.hour, 
+          min: postedHrs.open.wed.min, 
+          ampm: postedHrs.open.wed.ampm 
+        },
+         thur: {
+          isOpen: postedHrs.open.thur.isOpen, 
+          hour: postedHrs.open.thur.hour, 
+          min: postedHrs.open.thur.min, 
+          ampm: postedHrs.open.thur.ampm 
+        },        
+          fri: {
+            isOpen: postedHrs.open.fri.isOpen, 
+            hour: postedHrs.open.fri.hour, 
+            min: postedHrs.open.fri.min, 
+            ampm: postedHrs.open.fri.ampm 
+          },
+          sat: {
+            isOpen: postedHrs.open.sat.isOpen, 
+            hour: postedHrs.open.sat.hour, 
+            min: postedHrs.open.sat.min, 
+            ampm: postedHrs.open.sat.ampm 
+          },        
+         },
+        close: {
+          sun: {
+            hour: postedHrs.close.sun.hour, 
+            min: postedHrs.close.sun.min, 
+            ampm: postedHrs.close.sun.ampm 
+          },        
+          mon: {
+            hour: postedHrs.close.mon.hour, 
+            min: postedHrs.close.mon.min, 
+            ampm: postedHrs.close.mon.ampm 
+          },
+          tue: {
+            hour: postedHrs.close.tue.hour, 
+            min: postedHrs.close.tue.min, 
+            ampm: postedHrs.close.tue.ampm 
+          },        
+          wed: {
+            hour: postedHrs.close.wed.hour, 
+            min: postedHrs.close.wed.min, 
+            ampm: postedHrs.close.wed.ampm 
+          },
+          thur: {
+            hour: postedHrs.close.thur.hour, 
+            min: postedHrs.close.thur.min, 
+            ampm: postedHrs.close.thur.ampm 
+          },        
+          fri: {
+            hour: postedHrs.close.fri.hour, 
+            min: postedHrs.close.fri.min, 
+            ampm: postedHrs.close.fri.ampm 
+          },
+          sat: {
+            hour: postedHrs.close.sat.hour, 
+            min: postedHrs.close.sat.min, 
+            ampm: postedHrs.close.sat.ampm },
+          },
+        },
     }
   })
   .then((response) => {
