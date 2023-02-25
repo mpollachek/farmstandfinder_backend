@@ -576,7 +576,7 @@ farmRouter
       description:  req.body.description,
       seasons: seasonsArray,
       farmstandType: req.body.values.farmstandType,
-      useHours: req.body.values.useHours,
+      useHours: req.body.useHours,
       hours: {
         open: {
           sun: {
