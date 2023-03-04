@@ -27,7 +27,10 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + path.extname(file.originalname));
   },
 });
-const upload = multer({ storage: storage });
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 3145728 }
+});
 
 const farmRouter = express.Router();
 
@@ -316,7 +319,7 @@ farmRouter
         },
     })
       .then(async (farm) => {
-        //console.log("Farmstand Created ", farm);
+        console.log("Farmstand Created ", farm);
         const farmId = farm._id;
         const farmPath = `${dir}/${farmId}`;
         //console.log("farmId: ", farmId);
