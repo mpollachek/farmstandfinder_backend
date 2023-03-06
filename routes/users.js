@@ -106,7 +106,7 @@ userRouter
 .get(cors.corsWithOptions, passport.authenticate('google', { failureRedirect: 'http://localhost:3000/redirect', failureMessage: "failed google auth" }),
   function(req, res) {
     //const user = {userId: req._user._id, username: req._user.username}
-    const userId = req._user._id.toString()
+    const userId = req.user._id.toString()
     console.log("successful google login")
     console.log("req.body", req.body)
     //console.log("user", user)
@@ -116,32 +116,39 @@ userRouter
     // Successful authentication, redirect home.
     res.cookie('google', token);
     res.cookie('userId', userId, {encode: String})
-    res.cookie('userName', req._user.username, {encode: String})
+    res.cookie('userName', req.user.username, {encode: String})
     res.redirect('http://localhost:3000/redirect');
     //res.json({success: true, token: token, status: 'You are successfully logged in!'});
   });
 
-  // userRouter
-  // .route("/login/google")
-  // .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
-  // userRouter.get("/google", cors.cors, passport.authenticate("google", { scope: ["profile"] }));
-
-  // userRouter
-  // .route("/login/google/auth")
-  // .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
-  // .get(cors.corsWithOptions, passport.authenticate("google"), (req, res, next) => {
-  //   console.log("req.body", req.body)
-  //   const token = authenticate.getToken({ _id: req.user._id });
-  //   res.statusCode = 200;
-  //   res.setHeader("Content-Type", "application/json");
-  //   res.json({
-  //     success: true,
-  //     token: token,
-  //     userId: req.user._id,
-  //     userEmail: req.user.useremail,
-  //     status: "You are successfully logged in!",
-  //   });
-  // })
+  userRouter.get('/login/facebook',
+  passport.authenticate('facebook', { scope: ['email'] }), function(req, res) {
+    console.log("req", req)
+    console.log("res", res)
+  });
+ 
+userRouter
+.route('/login/facebook/auth')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.corsWithOptions, passport.authenticate('facebook', { failureRedirect: 'http://localhost:3000/redirect', failureMessage: "failed facebook auth" }),
+  function(req, res) {
+    //const user = {userId: req._user._id, username: req._user.username}
+    console.log("req._user", req._user)
+    console.log("req.user", req.user)
+    const userId = req.user._id.toString()
+    console.log("successful facebook login")
+    console.log("req.body", req.body)
+    //console.log("user", user)
+    console.log("userId", userId)
+    const token = authenticate.getToken({ _id: req.user._id });
+    console.log("cookie", token)
+    // Successful authentication, redirect home.
+    res.cookie('facebook', token);
+    res.cookie('userId', userId, {encode: String})
+    res.cookie('userName', req.user.username, {encode: String})
+    res.redirect('http://localhost:3000/redirect');
+    //res.json({success: true, token: token, status: 'You are successfully logged in!'});
+  });
 
 userRouter.get("/logout", cors.corsWithOptions, (req, res, next) => {
   if (req.session) {
@@ -155,22 +162,25 @@ userRouter.get("/logout", cors.corsWithOptions, (req, res, next) => {
   }
 });
 
-userRouter.get(
-  "/facebook/token",
-  passport.authenticate("facebook-token"),
-  (req, res) => {
-    if (req.user) {
-      const token = authenticate.getToken({ _id: req.user._id });
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json");
-      res.json({
-        success: true,
-        token: token,
-        status: "You are successfully logged in!",
-      });
-    }
-  }
-);
+// app.get('/auth/facebook',
+//   passport.authenticate('facebook'));
+
+// userRouter.get(
+//   "/facebook/token",
+//   passport.authenticate("facebook-token"),
+//   (req, res) => {
+//     if (req.user) {
+//       const token = authenticate.getToken({ _id: req.user._id });
+//       res.statusCode = 200;
+//       res.setHeader("Content-Type", "application/json");
+//       res.json({
+//         success: true,
+//         token: token,
+//         status: "You are successfully logged in!",
+//       });
+//     }
+//   }
+// );
 
 userRouter
   .route("/protected")

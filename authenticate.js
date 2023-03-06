@@ -4,7 +4,7 @@ const User = require('./models/user');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
-const FacebookTokenStrategy = require('passport-facebook-token');
+const FacebookStrategy = require("passport-facebook")
 var GoogleStrategy = require( 'passport-google-oauth20' ).Strategy;
 const fs = require('fs');
 
@@ -59,6 +59,7 @@ exports.showLogs = (req, res, next) => {
     next()
 }
 
+//below doesn't work - 500 and crashes
 // exports.verifyUser = (req, res) => {
 //   const authType = req.headers.authtype;
 //   console.log("req.headers.authtype", req.headers.authtype)
@@ -142,45 +143,62 @@ function(req, accessToken, refreshToken, profile, done) {
 }
 ));
 
-passport.use(new FacebookTokenStrategy({
-  clientID: config.facebook.clientId,
-  clientSecret: config.facebook.clientSecret,
-  fbGraphVersion: 'v3.0'
-}, function(accessToken, refreshToken, profile, done) {
-  User.findOrCreate({facebookId: profile.id}, function (error, user) {
-    return done(error, user);
-  });
-}
-));
+// passport.use(new FacebookTokenStrategy({
+//   clientID: config.facebook.clientId,
+//   clientSecret: config.facebook.clientSecret,
+//   fbGraphVersion: 'v3.0'
+// }, function(accessToken, refreshToken, profile, done) {
+//   User.findOrCreate({facebookId: profile.id}, function (error, user) {
+//     return done(error, user);
+//   });
+// }
+// ));
 
-// exports.facebookPassport = passport.use(
-//   new FacebookTokenStrategy(
-//       {
-//           clientID: config.facebook.clientId,
-//           clientSecret: config.facebook.clientSecret
-//       }, 
-//       (accessToken, refreshToken, profile, done) => {
-//           User.findOne({facebookId: profile.id}, (err, user) => {
-//               if (err) {
-//                   return done(err, false);
-//               }
-//               if (!err && user) {
-//                   return done(null, user);
-//               } else {
-//                   user = new User({ username: profile.displayName });
-//                   user.facebookId = profile.id;
-//                   user.save((err, user) => {
-//                       if (err) {
-//                           return done(err, false);
-//                       } else {
-//                           return done(null, user);
-//                       }
-//                   });
-//               }
-//           });
-//       }
-//   )
-// );
+//switch to passport facebook https://github.com/jaredhanson/passport-facebook
+
+exports.facebookPassport = passport.use(
+  new FacebookStrategy(
+      {
+          clientID: config.facebook.clientId,
+          clientSecret: config.facebook.clientSecret,
+          callbackURL: "http://localhost:8080/api/users/login/facebook/auth",
+          profileFields: ['id', 'displayName', 'emails']
+      }, 
+      (req, accessToken, refreshToken, profile, done) => {
+          User.findOne({facebookId: profile.id}, (err, user) => {
+              if (err) {
+                  return done(err, false);
+              }
+              if (!err && user) {
+                req._user = user;
+                console.log("user", user)
+                  return done(null, user);
+              } else {
+                  console.log("profile", profile)
+                  console.log("profile._json", profile._json)
+                  console.log("profile.emails", profile.emails)
+                  user = new User({ username: profile.displayName });
+                  user.facebookId = profile.id;
+                  user.facebookRefreshToken = refreshToken;
+                  if (profile._json.email) {
+                  user.useremail = profile._json.email
+                  }
+                  console.log("user", user)
+                  user.save((err, user) => {
+                      if (err) {
+                          return done(err, false);
+                      } else {
+                        console.log("new user, accesstoken", accessToken)
+                        console.log("new user, refreshtoken", refreshToken)
+                        req._user = user
+                          return done(null, user);
+                    
+              }});
+              }
+          });
+      }
+  )
+);
 
 // passport.serializeUser((user, done) => {
 //   done(null, user);

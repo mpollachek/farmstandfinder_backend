@@ -860,6 +860,33 @@ farmRouter
 })
 /* End Allow owner to edit products to farmstand */
 
+/* Allow owner to set cover image */
+farmRouter
+.route("/:farmstandId/coverimage")
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.put( cors.corsWithOptions, authenticate.verifyUser, async (req, res, next) => {
+  // console.log("req: ", req.body)
+  const farmstandId = req.params.farmstandId
+  const image = req.body.image
+  const allImages = req.body.images
+  const index = allImages.indexOf(image)
+  if (index !== -1) {
+    allImages.splice(index, 1);
+  }
+  allImages.splice(0, 0, image)
+  const selectCoverImage = await Farm.findByIdAndUpdate(farmstandId, {
+    $set: { images: allImages }
+  }, { new: true })
+  .then((response) => {
+    // console.log("response of remove image: ", response.images)
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    res.json(response);
+  })
+  .catch((err) => next(err));
+})
+/* Allow owner to set cover image */
+
 /* Allow owner to remove image */
 farmRouter
 .route("/:farmstandId/removeimage")
