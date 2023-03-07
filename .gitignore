@@ -1,6 +1,7 @@
 node_modules
 bin/server.key and bin/server.cert
 config.js
+cert
 
 public/images
 
