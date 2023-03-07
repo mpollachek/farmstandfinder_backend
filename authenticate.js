@@ -9,8 +9,11 @@ var GoogleStrategy = require( 'passport-google-oauth20' ).Strategy;
 const fs = require('fs');
 
 const config = require('./config.js');
-jwtSecret = fs.readFileSync('./jwtSecret.pem');
-jwtPublic = fs.readFileSync('./jwtPublic.pem')
+
+const jwtPublicLocation = config.jwtPublicLocation;
+const jwtSecretLocation = config. jwtSecretLocation;
+jwtSecret = fs.readFileSync(`${jwtSecretLocation}`);
+jwtPublic = fs.readFileSync(`${jwtPublicLocation}`)
 
 const backendUrl = config.backendUrl
 
