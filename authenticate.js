@@ -12,6 +12,8 @@ const config = require('./config.js');
 jwtSecret = fs.readFileSync('./jwtSecret.pem');
 jwtPublic = fs.readFileSync('./jwtPublic.pem')
 
+const backendUrl = config.backendUrl
+
 exports.local = passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
@@ -104,7 +106,7 @@ exports.verifyAdmin = (req, res, next) => {
 passport.use(new GoogleStrategy({
   clientID:     config.google.GOOGLE_CLIENT_ID,
   clientSecret: config.google.GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://localhost:8080/api/users/login/google/auth",
+  callbackURL: `${backendUrl}/api/users/login/google/auth`,
   passReqToCallback: true,
   scope: ['profile', 'email'],
 },
@@ -161,7 +163,7 @@ exports.facebookPassport = passport.use(
       {
           clientID: config.facebook.clientId,
           clientSecret: config.facebook.clientSecret,
-          callbackURL: "http://localhost:8080/api/users/login/facebook/auth",
+          callbackURL: `${backendUrl}/api/users/login/facebook/auth`,
           profileFields: ['id', 'displayName', 'emails']
       }, 
       (req, accessToken, refreshToken, profile, done) => {

@@ -8,6 +8,7 @@ const authenticate = require("../authenticate");
 const cors = require("./cors");
 const path = require("path");
 const fs = require("fs");
+const config = require("../config.js")
 
 const dir = "./public/images";
 const tempPath = `${dir}/temp`;
@@ -34,7 +35,7 @@ const upload = multer({
 
 const farmRouter = express.Router();
 
-const productValuesId = '63eaac52da8de6ad2fb3ca2c';
+const productValuesId = config.productValuesId
 
 /* All Farmstands */
 farmRouter

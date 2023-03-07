@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const fs = require("fs");
+const config = require("../config.js")
 
 /**
  * Module dependencies.
@@ -7,11 +8,16 @@ const fs = require("fs");
 
 var app = require('../app');
 var debug = require('debug')('farmstandfinder-backend:server');
-var http = require('node:http');
+var http = require('http');
 var https = require('https');
-var privateKey  = fs.readFileSync('cert/CA/localhost/localhost.decrypted.key'); 
-//https://www.section.io/engineering-education/how-to-get-ssl-https-for-localhost/
-var certificate = fs.readFileSync('cert/CA/localhost/localhost.crt'); 
+
+const privateKeyLocation = config.privateKeyLocation;
+const certLocation = config.certLocation;
+
+var privateKey  = fs.readFileSync(privateKeyLocation); 
+var certificate = fs.readFileSync(certLocation); 
+//for local: https://www.section.io/engineering-education/how-to-get-ssl-https-for-localhost/
+//for VPS: Certbot
 
 var credentials = {key: privateKey, cert: certificate};
 

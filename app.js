@@ -4,7 +4,7 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const passport = require("passport");
-const config = require("./config");
+const config = require("./config.js")
 //const session = require('express-session');
 
 var indexRouter = require("./routes/index");
