@@ -825,7 +825,7 @@ farmRouter
       console.log("productValuesId", productValuesId)
       Values.findById(productValuesId)
       .then( (productValues) => {
-        //console.log("productValues.values: ", productValues.values)
+        console.log("productValues.values: ", productValues.values)
         for (i of productNames) {
           //console.log("i", i)
           if (productValues.values.includes(i)) {
