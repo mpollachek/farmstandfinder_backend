@@ -130,7 +130,7 @@ function(req, accessToken, refreshToken, profile, done) {
       console.log("user exists, refreshtoken", refreshToken)
         return done(null, user);
     } else {
-        console.log("req else", req)
+        console.log("profile", profile)
         user = new User({ username: profile.displayName });
         console.log("google user", user)
         user.googleId = profile.id;
