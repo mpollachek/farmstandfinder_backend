@@ -112,11 +112,11 @@ userRouter
     //console.log("user", user)
     console.log("userId", userId)
     const token = authenticate.getToken({ _id: req.user._id });
-    console.log("cookie", token)
+    console.log("cookie", token, { maxAge: 900000 })
     // Successful authentication, redirect home.
-    res.cookie('google', token);
-    res.cookie('userId', userId, {encode: String})
-    res.cookie('userName', req.user.username, {encode: String})
+    res.cookie('google', token, { maxAge: 900000 });
+    res.cookie('userId', userId, {encode: String, maxAge: 900000})
+    res.cookie('userName', req.user.username, {encode: String, maxAge: 900000})
     res.redirect(`${baseUrl}`);
     //res.json({success: true, token: token, status: 'You are successfully logged in!'});
   });
