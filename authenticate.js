@@ -11,7 +11,7 @@ const fs = require('fs');
 const config = require('./config.js');
 
 const jwtPublicLocation = config.jwtPublicLocation;
-const jwtSecretLocation = config. jwtSecretLocation;
+const jwtSecretLocation = config.jwtSecretLocation;
 jwtSecret = fs.readFileSync(`${jwtSecretLocation}`);
 jwtPublic = fs.readFileSync(`${jwtPublicLocation}`)
 
