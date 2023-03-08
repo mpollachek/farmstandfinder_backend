@@ -117,7 +117,7 @@ userRouter
     res.cookie('google', token);
     res.cookie('userId', userId, {encode: String})
     res.cookie('userName', req.user.username, {encode: String})
-    res.redirect('http://localhost:3000/redirect');
+    res.redirect(`${baseUrl}`);
     //res.json({success: true, token: token, status: 'You are successfully logged in!'});
   });
 

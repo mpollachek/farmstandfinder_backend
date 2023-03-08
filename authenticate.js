@@ -119,7 +119,7 @@ function(req, accessToken, refreshToken, profile, done) {
   // User.findOrCreate({ googleId: profile.id }, function (err, user) {
   //   return done(err, user);
   // });
-  User.findOne({googleId: profile.id}, (err, user) => {
+  User.findOne({googleId: profile.id}, async (err, user) => {
     if (err) {
         return done(err, false);
     }
@@ -136,7 +136,7 @@ function(req, accessToken, refreshToken, profile, done) {
         user.googleId = profile.id;
         user.googleRefreshToken = refreshToken;
         user.useremail = profile._json.email;
-        user.save((err, user) => {
+        await user.save((err, user) => {
             if (err) {
                 return done(err, false);
             } else {
