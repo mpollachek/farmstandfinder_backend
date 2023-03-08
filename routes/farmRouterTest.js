@@ -682,9 +682,10 @@ farmRouter
   .put(
     cors.corsWithOptions, upload.array("image", 12),
     /*authenticate.verifyUser, authenticate.verifyAdmin,*/ (req, res, next) => {
-      // console.log("farmstandId: " + req.params.farmstandId);
-      // console.log('req.body: ', req.body)
-      // console.log("files: " + JSON.stringify(req.files));
+      console.log("config.environment", config.environment)
+      console.log("farmstandId: " + req.params.farmstandId);
+      console.log('req.body: ', req.body)
+      console.log("files: " + JSON.stringify(req.files));
       const farmId = req.params.farmstandId;
       const imageNames = [];
       if (req.files) {

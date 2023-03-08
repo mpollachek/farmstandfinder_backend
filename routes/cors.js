@@ -21,6 +21,8 @@ if (config.environment === 'development') {
     "https://allfarmstands.com"
   ];
 }
+//console.log("config.environment", config.environment)
+//console.log("whitelist", whitelist)
 const corsOptionsDelegate = (req, callback) => {
   let corsOptions;
   console.log(req.header("Origin"));
