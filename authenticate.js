@@ -124,7 +124,7 @@ function(req, accessToken, refreshToken, profile, done) {
         return done(err, false);
     }
     if (!err && user) {
-      //console.log("request", request)
+      console.log("req !err && user", req)
       req._user = user;
       console.log("user exists, accesstoken", accessToken)
       console.log("user exists, refreshtoken", refreshToken)
@@ -138,7 +138,7 @@ function(req, accessToken, refreshToken, profile, done) {
             if (err) {
                 return done(err, false);
             } else {
-                //console.log("request", request)
+                console.log("req else", req)
                 console.log("new user, accesstoken", accessToken)
                 console.log("new user, refreshtoken", refreshToken)
                 req._user = user
