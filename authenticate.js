@@ -130,15 +130,17 @@ function(req, accessToken, refreshToken, profile, done) {
       console.log("user exists, refreshtoken", refreshToken)
         return done(null, user);
     } else {
+        console.log("req else", req)
         user = new User({ username: profile.displayName });
+        console.log("google user", user)
         user.googleId = profile.id;
         user.googleRefreshToken = refreshToken;
-        user.useremail = email
+        user.useremail = email;
         user.save((err, user) => {
             if (err) {
                 return done(err, false);
             } else {
-                console.log("req else", req)
+                console.log("req else else", req)
                 console.log("new user, accesstoken", accessToken)
                 console.log("new user, refreshtoken", refreshToken)
                 req._user = user
