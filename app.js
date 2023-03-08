@@ -14,6 +14,7 @@ const farmRouter = require("./routes/farmRouterTest");
 const mongoose = require("mongoose");
 
 const url = config.mongoUrl;
+console.log("mongoUrl", url)
 const connect = mongoose.connect(url);
 
 connect.then(
