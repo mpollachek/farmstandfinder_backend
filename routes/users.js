@@ -187,14 +187,14 @@ userRouter
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
   .get(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     if (req.isAuthenticated()) {
-      console.log("protected req.user", req.user)
+      //console.log("protected req.user", req.user)
       res.send(req.user);
-      console.log("Protected");
+      //console.log("Protected");
     } else {
       res.status(401).send({ msg: "Unauthorized" });
     }
     //console.log("session:", req.session);
-    console.log("user", req.user);
+    //console.log("user", req.user);
   });
 
 userRouter

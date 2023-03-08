@@ -36,6 +36,7 @@ const upload = multer({
 const farmRouter = express.Router();
 
 const productValuesId = config.productValuesId
+console.log("productValuesId", productValuesId)
 
 /* All Farmstands */
 farmRouter
@@ -480,6 +481,7 @@ farmRouter
 .get(cors.cors, (req, res, next) => {
   // console.log("test allproducts get")
   // console.log("req.body: ", req.body);
+  console.log("productValuesId", productValuesId)
   Values.findById(productValuesId) 
     .then( (productValues) => {
       // console.log("product values: ", productValues);
