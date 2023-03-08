@@ -1,8 +1,10 @@
 const cors = require("cors");
 const config = require("../config.js")
 
+let whitelist = []
+
 if (config.environment === 'development') {
-const whitelist = [
+  whitelist = [
   "http://localhost:3000",
   "http://localhost:3001",
   "http://localhost:7080",
@@ -12,7 +14,7 @@ const whitelist = [
   "https://allfarmstands.com"
 ];
 } else {
-  const whitelist = [
+  whitelist = [
     "https://www.allfarmstands.com",
     "allfarmstands.com",
     "http://www.allfarmstands.com",
