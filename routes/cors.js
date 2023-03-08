@@ -9,11 +9,12 @@ const whitelist = [
   "http://localhost:8080",
   "https://www.allfarmstands.com",
   "allfarmstands.com",
+  "https://allfarmstands.com"
 ];
 } else {
   const whitelist = [
     "https://www.allfarmstands.com",
-    "www.allfarmstands.com",
+    "allfarmstands.com",
     "http://www.allfarmstands.com",
     "https://allfarmstands.com"
   ];

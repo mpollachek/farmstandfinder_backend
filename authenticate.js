@@ -12,6 +12,7 @@ const config = require('./config.js');
 
 const jwtPublicLocation = config.jwtPublicLocation;
 const jwtSecretLocation = config.jwtSecretLocation;
+console.log("jwtSecretLocation", jwtSecretLocation)
 jwtSecret = fs.readFileSync(`${jwtSecretLocation}`);
 jwtPublic = fs.readFileSync(`${jwtPublicLocation}`)
 
