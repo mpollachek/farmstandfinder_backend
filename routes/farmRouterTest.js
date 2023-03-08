@@ -822,6 +822,7 @@ farmRouter
     if (productNames) {
       // add each product value to values collection
       // Do not remove value from values collection
+      console.log("productValuesId", productValuesId)
       Values.findById(productValuesId)
       .then( (productValues) => {
         //console.log("productValues.values: ", productValues.values)
