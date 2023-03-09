@@ -131,7 +131,7 @@ userRouter
         sameSite: true,
         secure: true
       })
-      .redirect('/redirect');
+      .redirect('https://www.allfarmstands.com/redirect');
     } catch (err) {
       console.log("redirect err", err)
     }
