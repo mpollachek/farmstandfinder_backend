@@ -114,9 +114,14 @@ userRouter
     const token = authenticate.getToken({ _id: req.user._id });
     console.log("cookie", token, { maxAge: 900000 })
     // Successful authentication, redirect home.
+    res.setHeader('Set-Cookie', [
+      `googleToken=${token}; HttpOnly; Path=/; Max-Age=${60 * 60}; Secure=True;`,
+      `userId=${userId}; HttpOnly; Path=/; Max-Age=${60 * 60 * 24 * 7 * 2}; Secure=True;`
+  ]);
     res.cookie('google', token, { maxAge: 900000 });
     res.cookie('userId', userId, {encode: String, maxAge: 900000})
     res.cookie('userName', req.user.username, {encode: String, maxAge: 900000})
+
     res.redirect(`${baseUrl}`);
     //res.json({success: true, token: token, status: 'You are successfully logged in!'});
   });
