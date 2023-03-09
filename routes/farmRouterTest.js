@@ -10,7 +10,7 @@ const path = require("path");
 const fs = require("fs");
 const config = require("../config.js")
 
-const dir = "./public/images";
+const dir = config.dir;
 const tempPath = `${dir}/temp`;
 // console.log("path.join dir + temp: " + path.normalize(dir, "temp"));
 // console.log(
