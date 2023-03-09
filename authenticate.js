@@ -19,8 +19,8 @@ jwtPublic = fs.readFileSync(`${jwtPublicLocation}`)
 const backendUrl = config.backendUrl
 
 exports.local = passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
 
 // exports.getToken = function(user) {
 //   return jwt.sign(user, config.secretKey, {expiresIn: 3600});
@@ -210,13 +210,13 @@ exports.facebookPassport = passport.use(
   )
 );
 
-// passport.serializeUser((user, done) => {
-//   done(null, user);
-// });
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
 
-// passport.deserializeUser((obj, done) => {
-//   done(null, obj);
-// });
+passport.deserializeUser((obj, done) => {
+  done(null, obj);
+});
 
 
 
