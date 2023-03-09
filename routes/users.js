@@ -152,7 +152,7 @@ userRouter
         sameSite: true,
         secure: true
       })
-      .redirect(`${baseUrl}/redirect}`);
+      .redirect(`${baseUrl}`);
     } catch (err) {
       console.log("redirect err", err)
     }
