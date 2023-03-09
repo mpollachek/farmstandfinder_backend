@@ -95,7 +95,7 @@ userRouter
   });
 
   userRouter.get('/login/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] }), function(req, res) {
+  passport.authenticate('google', { session: false, scope: ['profile', 'email'] }), function(req, res) {
     console.log("req", req)
     console.log("res", res)
   });
