@@ -117,13 +117,24 @@ userRouter
   //     `googleToken=${token}; HttpOnly; Path=/; Max-Age=${60 * 60}; Secure=True;`,
   //     `userId=${userId}; HttpOnly; Path=/; Max-Age=${60 * 60 * 24 * 7 * 2}; Secure=True;`
   // ]);
-    res.cookie('google', token, { maxAge: 900000 });
-    res.cookie('userId', userId, {encode: String, maxAge: 900000})
-    res.cookie('userName', req.user.username, {encode: String, maxAge: 900000})
-    console.log("res.redirect", `/${baseUrl}/redirect`)
+    // res.cookie('google', token, { maxAge: 900000 });
+    // res.cookie('userId', userId, {encode: String, maxAge: 900000})
+    // res.cookie('userName', req.user.username, {encode: String, maxAge: 900000})
+    // console.log("res.redirect", `${baseUrl}/redirect`)
     //res.send(window.close)
-    res.redirect(`${baseUrl}/redirect`);
+    // res.redirect(`${baseUrl}/redirect`);
     //res.json({success: true, token: token, status: 'You are successfully logged in!'});
+    try {
+      res.cookie('googleToken', token, {
+        maxAge: 365 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: true,
+        secure: true
+      })
+      .redirect('/redirect');
+    } catch (err) {
+      console.log("redirect err", err)
+    }
   });
 
   userRouter.get('/login/facebook',
