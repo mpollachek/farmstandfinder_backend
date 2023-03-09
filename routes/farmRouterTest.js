@@ -199,8 +199,8 @@ farmRouter
         imagePaths.push(file.path);
         imageNames.push(file.filename);
       }
-      // console.log("imagePaths: " + imagePaths);
-      // console.log("imageNames: " + imageNames);
+      console.log("imagePaths: " + imagePaths);
+      console.log("imageNames: " + imageNames);
     }
     const seasonsArray = [];
     if (req.body.seasons === "harvest") {
