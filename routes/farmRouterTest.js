@@ -16,7 +16,7 @@ const tempPath = `${dir}/temp`;
 // console.log(
 //  "'./' + path.join dir + temp: " + "./" + path.normalize(dir, "temp")
 // );
-
+console.log("tempPath", tempPath)
 const multer = require("multer");
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
