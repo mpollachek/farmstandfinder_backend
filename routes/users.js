@@ -95,7 +95,7 @@ userRouter
   });
 
   userRouter.get('/login/google',
-  passport.authenticate('google', { session: false, scope: ['profile', 'email'] }), function(req, res) {
+  passport.authenticate('google', { session: false, scope: ['profile', 'email'], accessType:'offline', prompt:'consent' }), function(req, res) {
     console.log("req", req)
     console.log("res", res)
   });
@@ -117,9 +117,9 @@ userRouter
   //     `googleToken=${token}; HttpOnly; Path=/; Max-Age=${60 * 60}; Secure=True;`,
   //     `userId=${userId}; HttpOnly; Path=/; Max-Age=${60 * 60 * 24 * 7 * 2}; Secure=True;`
   // ]);
-  //   res.cookie('google', token, { maxAge: 900000 });
-  //   res.cookie('userId', userId, {encode: String, maxAge: 900000})
-  //   res.cookie('userName', req.user.username, {encode: String, maxAge: 900000})
+    res.cookie('google', token, { maxAge: 900000 });
+    res.cookie('userId', userId, {encode: String, maxAge: 900000})
+    res.cookie('userName', req.user.username, {encode: String, maxAge: 900000})
     res.redirect(`${baseUrl}`);
     //res.json({success: true, token: token, status: 'You are successfully logged in!'});
   });
