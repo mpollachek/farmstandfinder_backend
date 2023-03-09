@@ -117,11 +117,12 @@ userRouter
   //     `googleToken=${token}; HttpOnly; Path=/; Max-Age=${60 * 60}; Secure=True;`,
   //     `userId=${userId}; HttpOnly; Path=/; Max-Age=${60 * 60 * 24 * 7 * 2}; Secure=True;`
   // ]);
-    // res.cookie('google', token, { maxAge: 900000 });
-    // res.cookie('userId', userId, {encode: String, maxAge: 900000})
-    // res.cookie('userName', req.user.username, {encode: String, maxAge: 900000})
+    res.cookie('google', token, { maxAge: 900000 });
+    res.cookie('userId', userId, {encode: String, maxAge: 900000})
+    res.cookie('userName', req.user.username, {encode: String, maxAge: 900000})
     console.log("res.redirect", `/${baseUrl}/redirect`)
-    res.redirect(`${baseUrl}/redirect`);
+    res.send(window.close)
+    //res.redirect(`${baseUrl}/redirect`);
     //res.json({success: true, token: token, status: 'You are successfully logged in!'});
   });
 
