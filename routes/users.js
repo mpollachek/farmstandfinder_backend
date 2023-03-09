@@ -5,8 +5,11 @@ const Comment = require("../models/commentSchema");
 const passport = require("passport");
 const authenticate = require("../authenticate");
 const cors = require("./cors");
+const config = require('../config.js');
 
 const userRouter = express.Router();
+
+const baseUrl = config.baseUrl;
 
 /* GET users listing. */
 userRouter
@@ -106,7 +109,9 @@ userRouter
 .get(cors.corsWithOptions, passport.authenticate('google', { authType: 'rerequest', accessType:'offline', prompt:'consent', failureRedirect: 'http://localhost:3000/redirect', failureMessage: "failed google auth" }),
   function(req, res) {
     //const user = {userId: req._user._id, username: req._user.username}
+    //console.log("success login req", req)
     const userId = req.user._id.toString()
+    const userName = req.user.userName
     console.log("successful google login")
     console.log("req.body", req.body)
     //console.log("user", user)
@@ -120,18 +125,34 @@ userRouter
     // res.cookie('google', token, { maxAge: 900000 });
     // res.cookie('userId', userId, {encode: String, maxAge: 900000})
     // res.cookie('userName', req.user.username, {encode: String, maxAge: 900000})
-    // console.log("res.redirect", `${baseUrl}/redirect`)
+    console.log("res.redirect", `${baseUrl}/redirect`)
     //res.send(window.close)
     // res.redirect(`${baseUrl}/redirect`);
     //res.json({success: true, token: token, status: 'You are successfully logged in!'});
-    try {
-      res.cookie('googleToken', token, {
+    if (userId) {
+      res.cookie('userId', userId, {
         maxAge: 365 * 24 * 60 * 60 * 1000,
         httpOnly: true,
         sameSite: true,
         secure: true
       })
-      .redirect('https://www.allfarmstands.com/redirect');
+    }
+    if (userName) {
+      res.cookie('userName', userName, {
+        maxAge: 365 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: true,
+        secure: true
+      })
+    }
+    try {
+      res.cookie('token', token, {
+        maxAge: 365 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: true,
+        secure: true
+      })
+      .redirect(`${baseUrl}/redirect}`);
     } catch (err) {
       console.log("redirect err", err)
     }

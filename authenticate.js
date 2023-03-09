@@ -124,7 +124,7 @@ function(req, accessToken, refreshToken, profile, done) {
         return done(err, false);
     }
     if (!err && user) {
-      // console.log("req !err && user", req)
+      console.log("req !err && user", req)
       req._user = user;
       console.log("user", user)
       console.log("user exists, accesstoken", accessToken)
