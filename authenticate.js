@@ -111,7 +111,7 @@ exports.verifyAdmin = (req, res, next) => {
 passport.use(new GoogleStrategy({
   clientID:     config.google.GOOGLE_CLIENT_ID,
   clientSecret: config.google.GOOGLE_CLIENT_SECRET,
-  callbackURL: `${backendUrl}/api/users/login/google/auth`,
+  callbackURL: `/${backendUrl}/api/users/login/google/auth`,
   passReqToCallback: true,
   scope: ['profile', 'email'],
 },
