@@ -134,16 +134,16 @@ function(req, accessToken, refreshToken, profile, done) {
         console.log("profile", profile)
         user = new User({ username: profile.displayName });
         console.log("google user", user)
-        user.googleId = profile.id;
-        user.googleRefreshToken = refreshToken;
+        //user.googleId = profile.id;
+        //user.googleRefreshToken = refreshToken;
         user.useremail = profile._json.email;
         await user.save((err, user) => {
             if (err) {
                 return done(err, false);
             } else {
                 console.log("req else else", req)
-                console.log("new user, accesstoken", accessToken)
-                console.log("new user, refreshtoken", refreshToken)
+                console.log("new user, accesstoken", JSON.stringify(accessToken))
+                console.log("new user, refreshtoken", JSON.stringify(refreshToken))
                 req._user = user
                 return done(null, user);
             }
