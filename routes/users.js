@@ -142,7 +142,7 @@ userRouter
     } catch (err) {
       console.log("redirect err", err)
     }
-    res.redirect(`${baseUrl}/redirect`);
+    //res.redirect(`${baseUrl}/redirect`);
   });
 
   userRouter.get('/login/facebook',
