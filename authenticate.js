@@ -112,7 +112,7 @@ passport.use(new GoogleStrategy({
   clientID:     config.google.GOOGLE_CLIENT_ID,
   clientSecret: config.google.GOOGLE_CLIENT_SECRET,
   callbackURL: `${backendUrl}/api/users/login/google/auth`,
-  //passReqToCallback: true,
+  passReqToCallback: true,
   scope: ['profile', 'email'],
 },
 function(req, accessToken, refreshToken, profile, done) {
@@ -145,6 +145,7 @@ function(req, accessToken, refreshToken, profile, done) {
                 console.log("new user, accesstoken", JSON.stringify(accessToken))
                 console.log("new user, refreshtoken", JSON.stringify(refreshToken))
                 req._user = user
+                console.log("user", user)
                 return done(null, user);
             }
         });
