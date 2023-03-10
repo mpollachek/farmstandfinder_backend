@@ -4,6 +4,7 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const passport = require("passport");
+const cookieSession = require('cookie-session')
 const config = require("./config.js")
 //const session = require('express-session');
 
@@ -33,9 +34,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(cookieSession({
+  name: 'oauth-session',
+  keys: [config.key1, config.key2],
+  maxAge: 7 * 24 * 60 * 60 * 1000
+}))
 
 app.use(passport.initialize());
-//app.use(passport.session());
+app.use(passport.session());
 
 app.use("/api/", indexRouter);
 app.use("/api/users", usersRouter);

@@ -118,108 +118,36 @@ userRouter
     console.log("userId", userId)
     const token = authenticate.getToken({ _id: req.user._id });
     console.log("cookie", token, { domain:'allfarmstands.com', maxAge: 900000 })
-  //   res.setHeader('Set-Cookie', [
-  //     `googleToken=${token}; HttpOnly; Path=/; Max-Age=${60 * 60}; Secure=True;`,
-  //     `userId=${userId}; HttpOnly; Path=/; Max-Age=${60 * 60 * 24 * 7 * 2}; Secure=True;`
-  // ]);
-    // res.cookie('google', token, { maxAge: 900000 });
-    // res.cookie('userId', userId, {encode: String, maxAge: 900000})
-    // res.cookie('userName', req.user.username, {encode: String, maxAge: 900000})
     console.log("res.redirect", `${baseUrl}/redirect`)
-    //res.send(window.close)
-    // res.redirect(`${baseUrl}/redirect`);
-    //res.json({success: true, token: token, status: 'You are successfully logged in!'});
-    if (userId) {
-      res.cookie('userId', userId, {
-        maxAge: 365 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
-        sameSite: true,
-        secure: true
-      })
-    }
-    if (userName) {
-      res.cookie('userName', userName, {
-        maxAge: 365 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
-        sameSite: true,
-        secure: true
-      })
-    }
+    // if (userId) {
+    //   res.cookie('userId', userId, {
+    //     maxAge: 365 * 24 * 60 * 60 * 1000,
+    //     httpOnly: true,
+    //     sameSite: true,
+    //     secure: true
+    //   })
+    // }
+    // if (userName) {
+    //   res.cookie('userName', userName, {
+    //     maxAge: 365 * 24 * 60 * 60 * 1000,
+    //     httpOnly: true,
+    //     sameSite: true,
+    //     secure: true
+    //   })
+    // }
     try {
-      res.cookie('token', token, {
-        maxAge: 365 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
-        sameSite: true,
-        secure: true
-      })
-      .redirect(`${baseUrl}/redirect`);
+      // res.cookie('token', token, {
+      //   maxAge: 365 * 24 * 60 * 60 * 1000,
+      //   httpOnly: true,
+      //   sameSite: true,
+      //   secure: true
+      // })
+      res.redirect(`${baseUrl}/redirect`);
       console.log("redirect success")
     } catch (err) {
       console.log("redirect err", err)
     }
   });
-
-//   userRouter.get('/login/google',
-//   passport.authenticate('google', { session: false, scope: ['profile', 'email'], accessType:'offline', prompt:'consent' }), function(req, res) {
-//     console.log("req", req)
-//     console.log("res", res)
-//   });
- 
-// userRouter
-// .route('/login/google/auth')
-// .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
-// .get(cors.corsWithOptions, passport.authenticate('google', { authType: 'rerequest', accessType:'offline', prompt:'consent', failureRedirect: 'http://localhost:3000/redirect', failureMessage: "failed google auth" }),
-//   function(req, res) {
-//     //const user = {userId: req._user._id, username: req._user.username}
-//     console.log("success login req.user", req.user)
-//     const userId = req.user._id.toString()
-//     const userName = req.user.userName
-//     console.log("successful google login")
-//     console.log("req.body", req.body)
-//     //console.log("user", user)
-//     console.log("userId", userId)
-//     const token = authenticate.getToken({ _id: req.user._id });
-//     console.log("cookie", token, { domain:'allfarmstands.com', maxAge: 900000 })
-//   //   res.setHeader('Set-Cookie', [
-//   //     `googleToken=${token}; HttpOnly; Path=/; Max-Age=${60 * 60}; Secure=True;`,
-//   //     `userId=${userId}; HttpOnly; Path=/; Max-Age=${60 * 60 * 24 * 7 * 2}; Secure=True;`
-//   // ]);
-//     // res.cookie('google', token, { maxAge: 900000 });
-//     // res.cookie('userId', userId, {encode: String, maxAge: 900000})
-//     // res.cookie('userName', req.user.username, {encode: String, maxAge: 900000})
-//     console.log("res.redirect", `${baseUrl}/redirect`)
-//     //res.send(window.close)
-//     // res.redirect(`${baseUrl}/redirect`);
-//     //res.json({success: true, token: token, status: 'You are successfully logged in!'});
-//     if (userId) {
-//       res.cookie('userId', userId, {
-//         maxAge: 365 * 24 * 60 * 60 * 1000,
-//         httpOnly: true,
-//         sameSite: true,
-//         secure: true
-//       })
-//     }
-//     if (userName) {
-//       res.cookie('userName', userName, {
-//         maxAge: 365 * 24 * 60 * 60 * 1000,
-//         httpOnly: true,
-//         sameSite: true,
-//         secure: true
-//       })
-//     }
-//     try {
-//       res.cookie('token', token, {
-//         maxAge: 365 * 24 * 60 * 60 * 1000,
-//         httpOnly: true,
-//         sameSite: true,
-//         secure: true
-//       })
-//       .redirect(`${baseUrl}/redirect`);
-//       console.log("redirect success")
-//     } catch (err) {
-//       console.log("redirect err", err)
-//     }
-//   });
 
   userRouter.get('/login/facebook',
   passport.authenticate('facebook', { scope: ['email'] }), function(req, res) {
