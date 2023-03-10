@@ -115,33 +115,33 @@ userRouter
     console.log("successful google login")
     console.log("req.body", req.body)
     console.log('req.session', req.session)
-    //console.log("user", user)
-    // console.log("userId", userId)
-    // const token = authenticate.getToken({ _id: req.user._id });
-    // console.log("cookie", token, { domain:'allfarmstands.com', maxAge: 900000 })
-    // console.log("res.redirect", `/redirect`)
-    // if (userId) {
-    //   res.cookie('userId', userId, {
-    //     maxAge: 365 * 24 * 60 * 60 * 1000,
-    //     secure: true,
-    //   })
-    // }
-    // if (userName) {
-    //   res.cookie('userName', userName, {
-    //     maxAge: 365 * 24 * 60 * 60 * 1000,
-    //     secure: true
-    //   })
-    // }
-    // try {
-    //   res.cookie('token', token, {
-    //     maxAge: 365 * 24 * 60 * 60 * 1000,
-    //     secure: true
-    //   })
-    //   .redirect(`${baseUrl}/redirect`);
-    //   console.log("redirect success")
-    // } catch (err) {
-    //   console.log("redirect err", err)
-    // }
+    console.log("user", user)
+    console.log("userId", userId)
+    const token = authenticate.getToken({ _id: req.user._id });
+    console.log("cookie", token, { domain:'allfarmstands.com', maxAge: 900000 })
+    console.log("res.redirect", `/redirect`)
+    if (userId) {
+      res.cookie('userId', userId, {
+        maxAge: 365 * 24 * 60 * 60 * 1000,
+        secure: true,
+      })
+    }
+    if (userName) {
+      res.cookie('userName', userName, {
+        maxAge: 365 * 24 * 60 * 60 * 1000,
+        secure: true
+      })
+    }
+    try {
+      res.cookie('token', token, {
+        maxAge: 365 * 24 * 60 * 60 * 1000,
+        secure: true
+      })
+      .redirect(`${baseUrl}/redirect`);
+      console.log("redirect success")
+    } catch (err) {
+      console.log("redirect err", err)
+    }
     res.redirect(`${baseUrl}/redirect`);
   });
 
