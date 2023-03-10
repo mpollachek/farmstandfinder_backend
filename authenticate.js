@@ -114,7 +114,7 @@ passport.use(new GoogleStrategy({
   callbackURL: `${backendUrl}/api/users/login/google/auth`,
   passReqToCallback: true,
   scope: ['profile', 'email'],
-  proxy: true,
+  //proxy: true,
 },
 function (req, accessToken, refreshToken, profile, done) {
   // User.findOrCreate({ googleId: profile.id }, function (err, user) {
@@ -219,7 +219,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((id, done) => {
   console.log("find user by id", id)
-  User.findById(id, function(err, user){
+  User.findById(id).then((user) => {
     console.log("deserializing User", User)
     done(null, user);
   })  
