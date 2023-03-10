@@ -123,20 +123,22 @@ userRouter
       res.cookie('userId', userId, {
         maxAge: 365 * 24 * 60 * 60 * 1000,
         httpOnly: true,
-        secure: true
+        secure: true,
+        sameSite: 'none'
       })
     }
     if (userName) {
       res.cookie('userName', userName, {
         maxAge: 365 * 24 * 60 * 60 * 1000,
         httpOnly: true,
-        sameSite: true,
+        sameSite: 'none',
+        secure: 'true'
       })
     }
     try {
       res.cookie('token', token, {
         maxAge: 365 * 24 * 60 * 60 * 1000,
-        sameSite: true,
+        sameSite: 'none',
         secure: true
       })
       .redirect(`${baseUrl}/redirect`);
