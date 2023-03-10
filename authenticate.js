@@ -19,8 +19,8 @@ jwtPublic = fs.readFileSync(`${jwtPublicLocation}`)
 const backendUrl = config.backendUrl
 
 exports.local = passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
 
 // exports.getToken = function(user) {
 //   return jwt.sign(user, config.secretKey, {expiresIn: 3600});
@@ -115,7 +115,7 @@ passport.use(new GoogleStrategy({
   passReqToCallback: true,
   scope: ['profile', 'email'],
 },
-function(req, accessToken, refreshToken, profile, done) {
+function (req, accessToken, refreshToken, profile, done) {
   // User.findOrCreate({ googleId: profile.id }, function (err, user) {
   //   return done(err, user);
   // });
@@ -211,13 +211,13 @@ exports.facebookPassport = passport.use(
   )
 );
 
-// passport.serializeUser((user, done) => {
-//   done(null, user);
-// });
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
 
-// passport.deserializeUser((obj, done) => {
-//   done(null, obj);
-// });
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
 
 
 

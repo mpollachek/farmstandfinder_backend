@@ -178,11 +178,18 @@ userRouter
     //res.json({success: true, token: token, status: 'You are successfully logged in!'});
   });
 
-userRouter.get("/logout", cors.corsWithOptions, (req, res, next) => {
+userRouter
+.route("/logout")
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.corsWithOptions, (req, res, next) => {
+  console.log("logout")
   if (req.session) {
-    req.session.destroy();
-    res.clearCookie("session-id");
-    res.redirect("/");
+    console.log("req.session", req.session)
+    req.session = null
+    res.clearCookie("oauth-session", {path: '/'})
+    res.status(200).clearCookie("oauth-session.sig", {path: '/'}).json({oauthSession: "cleared"})
+    //res.redirect(`${baseUrl}/redirect`);
+    
   } else {
     const err = new Error("You are not logged in!");
     err.status = 401;
