@@ -212,11 +212,14 @@ exports.facebookPassport = passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  done(null, user.id);
+  console.log("serializing user._id", user)
+  done(null, user._id);
 });
 
 passport.deserializeUser((id, done) => {
+  console.log("find user by id", id)
   User.findById(id, function(err, user){
+    console.log("deserializing User", User)
     done(null, user);
   })  
 });
