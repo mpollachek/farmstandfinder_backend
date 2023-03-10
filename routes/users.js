@@ -119,30 +119,30 @@ userRouter
     const token = authenticate.getToken({ _id: req.user._id });
     console.log("cookie", token, { domain:'allfarmstands.com', maxAge: 900000 })
     console.log("res.redirect", `${baseUrl}/redirect`)
-    // if (userId) {
-    //   res.cookie('userId', userId, {
-    //     maxAge: 365 * 24 * 60 * 60 * 1000,
-    //     httpOnly: true,
-    //     sameSite: true,
-    //     secure: true
-    //   })
-    // }
-    // if (userName) {
-    //   res.cookie('userName', userName, {
-    //     maxAge: 365 * 24 * 60 * 60 * 1000,
-    //     httpOnly: true,
-    //     sameSite: true,
-    //     secure: true
-    //   })
-    // }
+    if (userId) {
+      res.cookie('userId', userId, {
+        maxAge: 365 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: true,
+        secure: true
+      })
+    }
+    if (userName) {
+      res.cookie('userName', userName, {
+        maxAge: 365 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: true,
+        secure: true
+      })
+    }
     try {
-      // res.cookie('token', token, {
-      //   maxAge: 365 * 24 * 60 * 60 * 1000,
-      //   httpOnly: true,
-      //   sameSite: true,
-      //   secure: true
-      // })
-      res.redirect(`${baseUrl}/redirect`);
+      res.cookie('token', token, {
+        maxAge: 365 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: true,
+        secure: true
+      })
+      .redirect(`${baseUrl}/redirect`);
       console.log("redirect success")
     } catch (err) {
       console.log("redirect err", err)

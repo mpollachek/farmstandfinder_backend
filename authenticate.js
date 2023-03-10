@@ -114,6 +114,7 @@ passport.use(new GoogleStrategy({
   callbackURL: `${backendUrl}/api/users/login/google/auth`,
   passReqToCallback: true,
   scope: ['profile', 'email'],
+  proxy: true,
 },
 function (req, accessToken, refreshToken, profile, done) {
   // User.findOrCreate({ googleId: profile.id }, function (err, user) {
