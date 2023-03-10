@@ -118,7 +118,7 @@ userRouter
     console.log("userId", userId)
     const token = authenticate.getToken({ _id: req.user._id });
     console.log("cookie", token, { domain:'allfarmstands.com', maxAge: 900000 })
-    console.log("res.redirect", `${baseUrl}/redirect`)
+    console.log("res.redirect", `/redirect`)
     if (userId) {
       res.cookie('userId', userId, {
         maxAge: 365 * 24 * 60 * 60 * 1000,
