@@ -98,7 +98,7 @@ userRouter
   });
 
   userRouter.get('/login/google',
-  passport.authenticate('google', { session: false, scope: ['profile', 'email'], accessType:'offline', prompt:'consent' }), function(req, res) {
+  passport.authenticate('google', { scope: ['profile', 'email'], accessType:'offline', prompt:'consent' }), function(req, res) {
     console.log("req", req)
     console.log("res", res)
   });
@@ -106,7 +106,7 @@ userRouter
 userRouter
 .route('/login/google/auth')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
-.get(cors.corsWithOptions, passport.authenticate('google', { failureRedirect: 'http://localhost:3000/redirect', failureMessage: "failed google auth" }),
+.get(cors.corsWithOptions, passport.authenticate('google', { failureRedirect: `${baseUrl}/redirect`, failureMessage: "failed google auth" }),
   function(req, res) {
     //const user = {userId: req._user._id, username: req._user.username}
     console.log("success login req.user", req.user)
