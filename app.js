@@ -3,10 +3,10 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-const cookieSession = require('cookie-session')
+//const cookieSession = require('cookie-session')
 const passport = require("passport");
 const config = require("./config.js")
-//const session = require('express-session');
+const session = require('express-session');
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
@@ -34,10 +34,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-app.use(cookieSession({
-  name: 'oauth-session',
-  keys: [config.key1, config.key2],
-  maxAge: 7 * 24 * 60 * 60 * 1000
+// app.use(cookieSession({
+//   name: 'oauth-session',
+//   keys: [config.key1, config.key2],
+//   maxAge: 7 * 24 * 60 * 60 * 1000
+// }))
+
+app.set('trust proxy', 1) // trust first proxy
+app.use(session({
+  secret: config.key1,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true }
 }))
 
 app.use(passport.initialize());
@@ -48,7 +56,7 @@ app.use("/api/users", usersRouter);
 
 app.use("/api/farms", farmRouter);
 
-app.enable('trust proxy')
+//app.enable('trust proxy')
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
