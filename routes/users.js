@@ -109,7 +109,7 @@ userRouter
 .get(cors.corsWithOptions, 
   function(req, res) {
     //const user = {userId: req._user._id, username: req._user.username}
-    //console.log("success login req", req)
+    console.log("success login req", req)
     const userId = req.user._id.toString()
     const userName = req.user.userName
     console.log("successful google login")
