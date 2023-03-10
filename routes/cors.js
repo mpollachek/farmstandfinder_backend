@@ -27,9 +27,9 @@ const corsOptionsDelegate = (req, callback) => {
   let corsOptions;
   console.log(req.header("Origin"));
   if (whitelist.indexOf(req.header("Origin")) !== -1) {
-    corsOptions = { origin: true, exposedHeaders: ["set-cookie"] };
+    corsOptions = { credentials: true, origin: true, exposedHeaders: ["Set-cookie"] };
   } else {
-    corsOptions = { origin: false, exposedHeaders: ["set-cookie"] };
+    corsOptions = { credentials: true,  origin: false, exposedHeaders: ["Set-cookie"] };
   }
   callback(null, corsOptions);
 };
