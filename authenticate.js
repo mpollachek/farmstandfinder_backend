@@ -176,7 +176,7 @@ exports.facebookPassport = passport.use(
           profileFields: ['id', 'displayName', 'emails']
       }, 
       (req, accessToken, refreshToken, profile, done) => {
-          User.findOne({facebookId: profile.id}, (err, user) => {
+          User.findOne({facebookId: profile.id}, async(err, user) => {
               if (err) {
                   return done(err, false);
               }
@@ -195,7 +195,7 @@ exports.facebookPassport = passport.use(
                   user.useremail = profile._json.email
                   }
                   console.log("user", user)
-                  user.save((err, user) => {
+                  await user.save((err, user) => {
                       if (err) {
                           return done(err, false);
                       } else {
