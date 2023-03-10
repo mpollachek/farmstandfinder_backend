@@ -122,22 +122,19 @@ userRouter
     if (userId) {
       res.cookie('userId', userId, {
         maxAge: 365 * 24 * 60 * 60 * 1000,
-        //secure: true,
-        sameSite: 'none'
+        secure: true,
       })
     }
     if (userName) {
       res.cookie('userName', userName, {
         maxAge: 365 * 24 * 60 * 60 * 1000,
-        sameSite: 'none',
-        //secure: 'true'
+        secure: true
       })
     }
     try {
       res.cookie('token', token, {
         maxAge: 365 * 24 * 60 * 60 * 1000,
-        sameSite: 'none',
-        //secure: true
+        secure: true
       })
       .redirect(`${baseUrl}/redirect`);
       console.log("redirect success")
