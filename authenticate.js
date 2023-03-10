@@ -134,7 +134,7 @@ function(req, accessToken, refreshToken, profile, done) {
         console.log("profile", profile)
         user = new User({ username: profile.displayName });
         console.log("google user", user)
-        //user.googleId = profile.id;
+        user.googleId = profile.id;
         //user.googleRefreshToken = refreshToken;
         user.useremail = profile._json.email;
         await user.save((err, user) => {
