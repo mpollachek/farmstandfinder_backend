@@ -115,7 +115,7 @@ userRouter
     console.log("successful google login")
     console.log("req.body", req.body)
     console.log('req.session', req.session)
-    console.log("user", user)
+    //console.log("user", user)
     console.log("userId", userId)
     const token = authenticate.getToken({ _id: req.user._id });
     console.log("cookie", token, { domain:'allfarmstands.com', maxAge: 900000 })
