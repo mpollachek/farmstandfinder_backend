@@ -136,7 +136,7 @@ userRouter
         maxAge: 365 * 24 * 60 * 60 * 1000,
         secure: true
       })
-      .render(`${baseUrl}/redirect`);
+      .redirect(`${baseUrl}/redirect`);
       console.log("redirect success")
     } catch (err) {
       console.log("redirect err", err)

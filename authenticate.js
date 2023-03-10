@@ -220,7 +220,7 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((id, done) => {
   console.log("find user by id", id)
   User.findById(id).then((user) => {
-    console.log("deserializing User", User)
+    console.log("deserializing User", user)
     done(null, user);
   })  
 });
