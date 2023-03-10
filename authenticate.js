@@ -127,8 +127,8 @@ function(req, accessToken, refreshToken, profile, done) {
       console.log("req !err && user", req)
       req._user = user;
       console.log("user", user)
-      console.log("user exists, accesstoken", accessToken)
-      console.log("user exists, refreshtoken", refreshToken)
+      console.log("user exists, accesstoken", JSON.stringify(accessToken))
+      console.log("user exists, refreshtoken", JSON.stringify(refreshToken))
         return done(null, user);
     } else {
         console.log("profile", profile)
