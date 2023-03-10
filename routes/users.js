@@ -123,7 +123,6 @@ userRouter
       res.cookie('userId', userId, {
         maxAge: 365 * 24 * 60 * 60 * 1000,
         httpOnly: true,
-        sameSite: true,
         secure: true
       })
     }
@@ -132,13 +131,11 @@ userRouter
         maxAge: 365 * 24 * 60 * 60 * 1000,
         httpOnly: true,
         sameSite: true,
-        secure: true
       })
     }
     try {
       res.cookie('token', token, {
         maxAge: 365 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
         sameSite: true,
         secure: true
       })
