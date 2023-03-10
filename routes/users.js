@@ -106,7 +106,7 @@ userRouter
 userRouter
 .route('/login/google/auth')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
-.get(cors.corsWithOptions, passport.authenticate('google', { failureRedirect: `${baseUrl}/redirect`, failureMessage: "failed google auth" }),
+.get(cors.corsWithOptions, passport.authenticate('google', { failureRedirect: `${baseUrl}`, failureMessage: "failed google auth" }),
   function(req, res) {
     //const user = {userId: req._user._id, username: req._user.username}
     console.log("success login req.user", req.user)
