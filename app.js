@@ -3,8 +3,8 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-const passport = require("passport");
 const cookieSession = require('cookie-session')
+const passport = require("passport");
 const config = require("./config.js")
 //const session = require('express-session');
 
