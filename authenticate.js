@@ -19,8 +19,8 @@ jwtPublic = fs.readFileSync(`${jwtPublicLocation}`)
 const backendUrl = config.backendUrl
 
 exports.local = passport.use(new LocalStrategy(User.authenticate()));
-// passport.serializeUser(User.serializeUser());
-// passport.deserializeUser(User.deserializeUser());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 // exports.getToken = function(user) {
 //   return jwt.sign(user, config.secretKey, {expiresIn: 3600});
@@ -212,18 +212,18 @@ exports.facebookPassport = passport.use(
   )
 );
 
-passport.serializeUser((user, done) => {
-  console.log("serializing user._id", user)
-  done(null, user._id);
-});
+// passport.serializeUser((user, done) => {
+//   console.log("serializing user._id", user)
+//   done(null, user._id);
+// });
 
-passport.deserializeUser((id, done) => {
-  console.log("find user by id", id)
-  User.findById(id).then((user) => {
-    console.log("deserializing User", user)
-    done(null, user);
-  })  
-});
+// passport.deserializeUser((id, done) => {
+//   console.log("find user by id", id)
+//   User.findById(id).then((user) => {
+//     console.log("deserializing User", user)
+//     done(null, user);
+//   })  
+// });
 
 
 

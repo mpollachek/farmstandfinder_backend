@@ -6,18 +6,74 @@ const passport = require("passport");
 const authenticate = require("../authenticate");
 const cors = require("./cors");
 const config = require('../config.js');
+const nodemailer = require('nodemailer')
 
 const userRouter = express.Router();
 
 const baseUrl = config.baseUrl;
 
+const resetEmail = async (userEmail, userId) => {
+
+  // let transporter = nodemailer.createTransport({
+  //   host: config.smtp,
+  //   port: 465,
+  //   secure: true,
+  //   auth: { 
+  //     type: 'OAuth2',
+  //     user: config.supportEmailUser,
+  //     serviceClient: config.GServiceClientId,
+  //     privateKey: config.GServicePrivateKey
+  //   }
+  // })
+
+  // let transporter = nodemailer.createTransport({
+  //   host: config.smtp,
+  //   port: 465,
+  //   secure: true,
+  //   auth: { 
+  //     type: 'OAuth2',
+  //     user: config.supportEmailUser,
+  //     pass: config.google_pword,
+  //     clientId: config.google.GOOGLE_CLIENT_ID,
+  //     clientSecret: config.google.GOOGLE_CLIENT_SECRET,
+  //     refreshToken: config.google_refresh_token
+  //   }
+  // })
+
+  let transporter = nodemailer.createTransport({
+    host: config.smtp,
+    port: 465,
+    secure: true,
+    auth: { 
+      user: config.zohoUser,
+      pass: config.zohoPword,
+    }
+  })
+
+  try{ 
+    await transporter.verify();
+    await transporter.sendMail({
+    from: '"AllFarmstands Support" <noreply@allfarmstands.com>', // sender address
+    to: userEmail, // list of receivers
+    subject: "Allfarmstands username/password reset", // Subject line
+    html: `You are receiving this because you (or someone else) have requested the reset of the password for your account.
+    Please click on the following link, or paste this into your browser to complete the process:
+    http://${config.baseUrl}/passwordreset/${userId}
+    If you did not request this, please ignore this email and your password will remain unchanged.`, // html body
+  });
+  console.log(`email sent to ${userEmail}`)
+} catch(err) {
+  console.log("err", err)
+}
+}
+
 /* GET users listing. */
 userRouter
   .route("/")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
   .get(
     cors.corsWithOptions,
     authenticate.verifyUser,
-    authenticate.verifyAdmin,
     (req, res, next) => {
       User.find()
         .then((users) => {
@@ -32,53 +88,63 @@ userRouter
 userRouter
   .route("/signup")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
-  .post(cors.corsWithOptions, (req, res) => {
-    User.register(
-      new User({ username: req.body.username }),
-      req.body.password,
-      (err, user) => {
+  .post(cors.corsWithOptions, async (req, res) => {
+    console.log("register req.body", req.body)
+    await User.register(
+      new User({ username: req.body.registerusername }),
+      req.body.registerpassword,
+      async (err, user) => {
         if (err) {
+          console.log("err", err)
           res.statusCode = 500;
           res.setHeader("Content-Type", "application/json");
           res.json({ err: err });
         } else {
+          console.log("registered")
           if (req.body.useremail) {
             user.useremail = req.body.useremail;
           }
-          user.save((err) => {
+          await user.save((err) => {
             if (err) {
+              console.log("err2", err)
               res.statusCode = 500;
               res.setHeader("Content-Type", "application/json");
               res.json({ err: err });
               return;
-            }
-            passport.authenticate("local")(req, res, () => {
-              // console.log("req.user: ", req.user);
-              const token = authenticate.getToken({ _id: req.user._id });
+            } else {
+            console.log("user", user)
+              const token = authenticate.getToken({ _id: user._id });
               res.statusCode = 200;
               res.setHeader("Content-Type", "application/json");
               res.json({
                 success: true,
                 token: token,
-                userId: req.user._id,
-                userName: req.user.username,
+                userId: user._id,
+                userName: user.username,
                 status: "Registration Successful!",
-              });
-            });
-          });
+              });            
+        }});
         }
       }
     );
   });
 
-// userRouter.post('/login', cors.corsWithOptions, passport.authenticate('local', {session: false}), (req, res) => {
-//   console.log("1")
-//   const token = authenticate.getToken({_id: req.user._id});
-//   console.log("1")
-//   res.statusCode = 200;
-//   res.setHeader('Content-Type', 'application/json');
-//   res.json({success: true, token: token, status: 'You are successfully logged in!'});
-// });
+  userRouter
+  .route("/signuplogin")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .post(cors.corsWithOptions, passport.authenticate("local"), (req, res) => {
+    console.log("req.body", req.body)
+    const token = authenticate.getToken({ _id: req.user._id });
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    res.json({
+      success: true,
+      token: token,
+      userId: req.user._id,
+      userName: req.user.username,
+      status: "You are successfully logged in!",
+    });
+  });
 
 userRouter
   .route("/login")
@@ -212,6 +278,116 @@ userRouter
 //     }
 //   }
 // );
+
+userRouter
+  .route("/profile")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .get(
+    cors.corsWithOptions,
+    authenticate.verifyUser,
+    (req, res, next) => {
+      if (req.isAuthenticated()) {
+      User.findById(req.user.id)
+        .then((users) => {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(users);
+        })
+        .catch((err) => next(err));
+      }
+    }
+  );
+
+userRouter
+  .route("/profile/changeusername")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+    console.log("req.body", req.body)
+    const newUsername = req.body.newUsername;
+    if (req.isAuthenticated()) {
+      User.findById(req.user.id)
+        .then(async (user) => {
+          await user.updateOne({ username: newUsername })
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.end(`username changed to ${newUsername}`);
+        })
+        .catch((err) => console.log(err));
+    }
+  })
+
+userRouter
+  .route("/profile/changeuseremail")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+    console.log("req.body", req.body)
+    const newUseremail = req.body.newUseremail;
+    if (req.isAuthenticated()) {
+      User.findById(req.user.id)
+        .then(async (user) => {
+          await user.updateOne({ useremail: newUseremail })
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.end(`user email changed to ${newUseremail}`);
+        })
+        .catch((err) => console.log(err));
+    }
+  })
+
+userRouter
+  .route("/profile/changeuserpassword")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+    console.log("req.body", req.body)
+    if (req.isAuthenticated()) {
+      User.findById(req.user.id)
+        .then(async (user) => {
+          await user.changePassword(req.body.oldUserpassword, req.body.newUserpassword, function (err) {
+            if (err) {
+              res.send(err);
+            } else {
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "application/json");
+              res.end(`password changed`);
+            }
+          })          
+        })
+        .catch((err) => console.log(err));
+    }
+  })
+
+userRouter
+  .route("/profile/resetuserpassword")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .post(cors.corsWithOptions, async (req, res, next) => {
+    console.log("req.body", req.body)
+    const email = req.body.resetemail 
+    const user = await User.findOne({ 'useremail': email });
+    if (!user) {
+      console.log("User does not exist")
+    } else {
+      console.log("user", user)
+    let userId = user._id
+    resetEmail(email, userId)
+    }
+  })
+
+  userRouter
+  .route("/profile/resetuserpassword/:userId")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .put(cors.corsWithOptions, async (req, res, next) => {
+    console.log("req.body", req.body)
+    const userId = req.params.userId
+    User.findById(userId)
+      .then( async (user) => {
+        await user.updateOne({ password: req.body.newUserPassword })
+        res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.end(`password has been changed`);
+      })
+    
+  })
+
 
 userRouter
   .route("/protected")
