@@ -380,10 +380,12 @@ userRouter
     const userId = req.params.userId
     User.findById(userId)
       .then( async (user) => {
-        await user.updateOne({ password: req.body.newUserPassword })
-        res.statusCode = 200;
+        await user.setPassword(req.body.resetUserPassword)
+        await user.save(() => {
+          res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
           res.end(`password has been changed`);
+        })        
       })
     
   })
