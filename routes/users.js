@@ -368,7 +368,10 @@ userRouter
     } else {
       console.log("user", user)
     let userId = user._id
-    resetEmail(email, userId)
+    await resetEmail(email, userId)
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    res.end(`password reset email has been sent to ${email}`);
     }
   })
 
