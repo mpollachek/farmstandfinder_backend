@@ -12,60 +12,66 @@ const userRouter = express.Router();
 
 const baseUrl = config.baseUrl;
 
-const resetEmail = async (userEmail, userId) => {
-
-  // let transporter = nodemailer.createTransport({
-  //   host: config.smtp,
-  //   port: 465,
-  //   secure: true,
-  //   auth: { 
-  //     type: 'OAuth2',
-  //     user: config.supportEmailUser,
-  //     serviceClient: config.GServiceClientId,
-  //     privateKey: config.GServicePrivateKey
-  //   }
-  // })
-
-  // let transporter = nodemailer.createTransport({
-  //   host: config.smtp,
-  //   port: 465,
-  //   secure: true,
-  //   auth: { 
-  //     type: 'OAuth2',
-  //     user: config.supportEmailUser,
-  //     pass: config.google_pword,
-  //     clientId: config.google.GOOGLE_CLIENT_ID,
-  //     clientSecret: config.google.GOOGLE_CLIENT_SECRET,
-  //     refreshToken: config.google_refresh_token
-  //   }
-  // })
+const sendEmail = async (userEmail, htmlMsg, fromEmail, zohoUser, zohoPword, subject) => {
 
   let transporter = nodemailer.createTransport({
     host: config.smtp,
     port: 465,
     secure: true,
     auth: { 
-      user: config.zohoUser,
-      pass: config.zohoPword,
+      user: `${zohoUser}`,
+      pass: `${zohoPword}`,
     }
   })
 
   try{ 
     await transporter.verify();
     await transporter.sendMail({
-    from: '"AllFarmstands Support" <noreply@allfarmstands.com>', // sender address
+    from: fromEmail, // sender address
     to: userEmail, // list of receivers
-    subject: "Allfarmstands username/password reset", // Subject line
-    html: `You are receiving this because you (or someone else) have requested the reset of the password for your account.
-    Please click on the following link, or paste this into your browser to complete the process:
-    http://${config.baseUrl}/passwordreset/${userId}
-    If you did not request this, please ignore this email and your password will remain unchanged.`, // html body
+    subject: `${subject}`, // Subject line
+    html: htmlMsg, // html body
   });
   console.log(`email sent to ${userEmail}`)
 } catch(err) {
   console.log("err", err)
-}
-}
+}}
+
+const resetEmailMsg = (userName, userId) => {
+  return(
+  `Hi ${userName}!
+    <br><br>
+    You are receiving this because you (or someone else) requested the reset of the password for your account.
+    Please click on the following link, or paste this into your browser to complete the process:
+    <br><br>
+    http://${config.baseUrl}/passwordreset/${userId}
+    <br><br>
+    If you did not request this, please ignore this email and your password will remain unchanged.
+    <br><br>
+    Please do not reply to this email address as it is not monitored.  If you would like to contact us please message support@allfarmstands.com`
+    )}
+
+const contactUsUserEmail = (userName, message) => {
+  return(
+    `Hi ${userName}!
+      <br><br>
+      You are receiving this because you (or someone else) sent us a message.  We will review your message and write back as soon as we are able.
+      <br><br>
+      The message you sent is written below:
+      <br><br>
+      ${message}`
+  )}
+
+const contactUsSupportEmail = (userName, userEmail, userId, message) => {
+  return(
+  `
+  Name: ${userName} <br>
+  Email: ${userEmail} <br>
+  userId: ${userId} <br>
+  Message: <br><br>
+  ${message}
+  `
+)}
 
 /* GET users listing. */
 userRouter
@@ -142,6 +148,7 @@ userRouter
       token: token,
       userId: req.user._id,
       userName: req.user.username,
+      userEmail: req.user.useremail,
       status: "You are successfully logged in!",
     });
   });
@@ -365,17 +372,23 @@ userRouter
     const user = await User.findOne({ 'useremail': email });
     if (!user) {
       console.log("User does not exist")
+      res.statusCode = 201;
+    res.setHeader("Content-Type", "application/json");
+    res.end(`no user with email address ${email} exists in our database`);
     } else {
       console.log("user", user)
     let userId = user._id
-    await resetEmail(email, userId)
+    let userName = user.username
+    let fromEmail = '"AllFarmstands Support" <noreply@allfarmstands.com>'
+    const subject = "Allfarmstands username/password reset"
+    await sendEmail(email, resetEmailMsg(userName, userId), fromEmail, config.zohoNoReplyUser, config.zohoNoReplyPword, subject)
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     res.end(`password reset email has been sent to ${email}`);
     }
   })
 
-  userRouter
+userRouter
   .route("/profile/resetuserpassword/:userId")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
   .put(cors.corsWithOptions, async (req, res, next) => {
@@ -389,9 +402,37 @@ userRouter
           res.setHeader("Content-Type", "application/json");
           res.end(`password has been changed`);
         })        
-      })
-    
+      })    
   })
+
+userRouter
+  .route("/contactus")
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .post(cors.corsWithOptions, async (req, res, next) => {
+    console.log("req.body", req.body)
+    const userEmail = req.body.values.userEmail 
+    const userName = req.body.values.userName
+    let userId = ""
+    if (req.body.values.userId) {
+      userId = req.body.values.userId
+    } else {
+      userId = "User not signed in"
+    }
+    const message = req.body.values.message
+    let supportEmail = '"AllFarmstands Support" <support@allfarmstands.com>'
+    let fromNoReplyEmail = '"AllFarmstands Support" <noreply@allfarmstands.com>'
+    const supportSubject = `Contact Us Msg from ${userId}, ${userName}, ${userEmail}`
+    const userSubject = `Confirmation of support email sent to Allfarmstands.com`
+    console.log("supportEmail", supportEmail)
+    console.log("userEmail", userEmail)
+    await sendEmail(supportEmail, contactUsSupportEmail(userName, userEmail, userId, message), fromNoReplyEmail, config.zohoNoReplyUser, config.zohoNoReplyPword, supportSubject)
+    await sendEmail(userEmail, contactUsUserEmail(userName, message), fromNoReplyEmail, config.zohoNoReplyUser, config.zohoNoReplyPword, userSubject)
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    res.end(`Email has been submitted to support and a confirmation email was sent to ${userEmail}`);
+  })
+
+  //if email was not sent send error code and error res.end
 
 
 userRouter
