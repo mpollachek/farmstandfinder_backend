@@ -351,11 +351,12 @@ userRouter
         .then(async (user) => {
           await user.changePassword(req.body.oldUserpassword, req.body.newUserpassword, function (err) {
             if (err) {
-              res.send(err);
+              res.statusCode = 201;
+              res.send("Old Password Incorrect");
             } else {
               res.statusCode = 200;
               res.setHeader("Content-Type", "application/json");
-              res.end(`password changed`);
+              res.end(`password successfully changed`);
             }
           })          
         })
