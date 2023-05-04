@@ -12,8 +12,19 @@ const userRouter = express.Router();
 
 const baseUrl = config.baseUrl;
 
-function usernameToLowerCase(req, res, next){
-  req.body.username = req.body.username.toLowerCase();
+function reqToLowerCase(req, res, next){
+  if (req.body.username){
+    req.body.username = req.body.username.toLowerCase();
+  }
+  if (req.body.registerusername){
+    req.body.registerusername = req.body.registerusername.toLowerCase();
+  }
+  if (req.body.useremail){
+    req.body.useremail = req.body.useremail.toLowerCase();
+  }
+  if (req.body.resetemail){
+    req.body.resetemail = req.body.resetemail.toLowerCase();
+  }
   next();
 }
 
@@ -99,7 +110,7 @@ userRouter
 userRouter
   .route("/signup")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
-  .post(cors.corsWithOptions, async (req, res) => {
+  .post(cors.corsWithOptions, reqToLowerCase, async (req, res) => {
     console.log("register req.body", req.body)
     await User.register(
       new User({ username: req.body.registerusername }),
@@ -143,7 +154,7 @@ userRouter
   userRouter
   .route("/signuplogin")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
-  .post(cors.corsWithOptions, passport.authenticate("local"), (req, res) => {
+  .post(cors.corsWithOptions, reqToLowerCase, passport.authenticate("local"), (req, res) => {
     console.log("req.body", req.body)
     const token = authenticate.getToken({ _id: req.user._id });
     res.statusCode = 200;
@@ -158,10 +169,11 @@ userRouter
     });
   });
 
+  //password no longer working-need to check github.  may be signup.  password works for older accounts
 userRouter
   .route("/login")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
-  .post(cors.corsWithOptions, usernameToLowerCase, passport.authenticate("local"), (req, res) => {
+  .post(cors.corsWithOptions,  reqToLowerCase, passport.authenticate("local"), (req, res) => {
     console.log("req.body", req.body)
     const token = authenticate.getToken({ _id: req.user._id });
     res.statusCode = 200;
@@ -372,10 +384,11 @@ userRouter
 userRouter
   .route("/profile/resetuserpassword")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
-  .post(cors.corsWithOptions, async (req, res, next) => {
+  .post(cors.corsWithOptions, reqToLowerCase, async (req, res, next) => {
     console.log("req.body", req.body)
-    const email = req.body.resetemail 
-    const user = await User.findOne({ 'useremail': email });
+    const email = req.body.resetemail
+    console.log("reset email: ", email)
+    const user = await User.findOne({ useremail: email });
     if (!user) {
       console.log("User does not exist")
       res.statusCode = 201;
