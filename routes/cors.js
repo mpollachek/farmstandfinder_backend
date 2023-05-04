@@ -11,14 +11,17 @@ if (config.environment === 'development') {
   "http://localhost:8080",
   "https://www.allfarmstands.com",
   "allfarmstands.com",
-  "https://allfarmstands.com"
+  "https://allfarmstands.com",
+  config.devMobileUrl
 ];
 } else {
   whitelist = [
     "https://www.allfarmstands.com",
     "allfarmstands.com",
     "http://www.allfarmstands.com",
-    "https://allfarmstands.com"
+    "https://allfarmstands.com",
+    config.devMobileUrl
+    
   ];
 }
 //console.log("config.environment", config.environment)

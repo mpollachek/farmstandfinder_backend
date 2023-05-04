@@ -797,10 +797,10 @@ farmRouter
 farmRouter
 .route("/:farmstandId/editproducts")
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
-.put( cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+.put( cors.corsWithOptions, (req, res, next) => {
   // console.log("req: ", req.body)
   const farmstandId = req.params.farmstandId
-  const userId = req.user._id
+  //const userId = req.user._id
   const products = req.body.products;
   const newProducts = req.body.newProducts;
   for (newProduct of newProducts) {

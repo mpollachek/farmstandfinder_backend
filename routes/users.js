@@ -12,6 +12,11 @@ const userRouter = express.Router();
 
 const baseUrl = config.baseUrl;
 
+function usernameToLowerCase(req, res, next){
+  req.body.username = req.body.username.toLowerCase();
+  next();
+}
+
 const sendEmail = async (userEmail, htmlMsg, fromEmail, zohoUser, zohoPword, subject) => {
 
   let transporter = nodemailer.createTransport({
@@ -156,7 +161,7 @@ userRouter
 userRouter
   .route("/login")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
-  .post(cors.corsWithOptions, passport.authenticate("local"), (req, res) => {
+  .post(cors.corsWithOptions, usernameToLowerCase, passport.authenticate("local"), (req, res) => {
     console.log("req.body", req.body)
     const token = authenticate.getToken({ _id: req.user._id });
     res.statusCode = 200;
