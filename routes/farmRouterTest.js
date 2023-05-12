@@ -209,12 +209,14 @@ farmRouter
     } else {
       seasonsArray.push("yearRound", "yearRoundQuery");
     }
-    const productsArray = JSON.parse(req.body.products)
+    console.log("req.body.products: ", req.body.products)
+    const productsArray = JSON.parse(req.body.products).map(p => p.toLowerCase())
+
     const index = productsArray.indexOf("");
     if (index !== -1) {
       productsArray.splice(index, 1);
     }
-    // console.log('productsArray: ', productsArray)
+    console.log('productsArray: ', productsArray)
     const typeArray = JSON.parse(req.body.farmstandType)
     const indexType = typeArray.indexOf("");
     if (indexType !== -1) {
@@ -248,7 +250,7 @@ farmRouter
     })
     }
     //end add products to values collection productvalues document
-    console.log("postedHrs.hours.close.sun.min.sunCloseMin", postedHrs.hours.close.sun.ampm.sunCloseAmPm)
+    //console.log("postedHrs.hours.close.sun.min.sunCloseMin", postedHrs.hours.close.sun.ampm.sunCloseAmPm)
     Farm.create({
       farmstandName: req.body.farmstandName,
       location: {
@@ -322,7 +324,7 @@ farmRouter
         },
     })
       .then(async (farm) => {
-        console.log("Farmstand Created ", farm);
+        //console.log("Farmstand Created ", farm);
         const farmId = farm._id;
         const farmPath = `${dir}/${farmId}`;
         //console.log("farmId: ", farmId);
@@ -736,7 +738,7 @@ farmRouter
   )
   /* End Allow anyone to add more images to farmstand */
 
-  /* End Allow anyone to add products to farmstand */
+  /* Allow anyone to add products to farmstand */
 farmRouter
   .route("/:farmstandId/addproducts")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
@@ -744,7 +746,7 @@ farmRouter
     // console.log("req: ", req.body)
     const productNames = [];
       if (req.body.products) {
-        for (product of req.body.products) {
+        for (product of req.body.products.toLowerCase()) {
           if (product) {
           productNames.push(product)
           }
@@ -801,8 +803,8 @@ farmRouter
   // console.log("req: ", req.body)
   const farmstandId = req.params.farmstandId
   //const userId = req.user._id
-  const products = req.body.products;
-  const newProducts = req.body.newProducts;
+  const products = req.body.products.map(p => p.toLowerCase());
+  const newProducts = req.body.newProducts.map(p => p.toLowerCase());
   for (newProduct of newProducts) {
     if (newProduct && !products.includes(newProduct)) {
     products.push(newProduct)

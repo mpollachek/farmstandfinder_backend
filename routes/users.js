@@ -169,7 +169,7 @@ userRouter
     });
   });
 
-  //password no longer working-need to check github.  may be signup.  password works for older accounts
+  //lowercase fixed.  need to add middleware reqtolowercase to edit username or useremail
 userRouter
   .route("/login")
   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
